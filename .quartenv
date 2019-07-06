@@ -1,0 +1,8 @@
+QUART_APP='manage.py'
+QUART_ENV=development
+SECRET_KEY='my_secret_key'
+DB_USERNAME=qf_user
+DB_PASSWORD=qf_password
+DB_HOST=localhost
+DATABASE_NAME=quartfeed
+MYSQL_ROOT_PASSWORD=rootpass
