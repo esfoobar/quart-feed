@@ -1,0 +1,35 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <h1>QuartFeed</h1>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                {% if session.username %}
+                <li role="presentation" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                      @{{ session.username }} <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">View profile</a></li>
+                        <li><a href="#">Edit profile</a></li>
+                        <li><a href="#">Change password</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="navbar-link">Logout</a></p>
+                </li> 
+                {% else %}
+                <li>
+                    <a href="#" class="navbar-link">Login</a></p>
+                </li>     
+                <li>
+                    <a href="#" class="navbar-link">Register</a></p>
+                </li> 
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
