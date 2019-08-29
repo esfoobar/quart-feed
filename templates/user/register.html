@@ -4,20 +4,25 @@ content %} {% include "navbar.html" %}
 <div class="row">
   <div class="col-md-offset-3 col-md-6">
     <h3>Registration</h3>
-
+    {% if error %}
+    <div class="text-danger">{{ error }}</div>
+    {% endif %}
     <form method="POST" action="{{ url_for('.register') }}" role="form">
       <div class="form-group">
         <label for="userEmail">Email address</label>
         <input
+          name="user_email"
           type="email"
           class="form-control"
           id="userEmail"
+          value="{{ user_email }}"
           placeholder="Enter email"
         />
       </div>
       <div class="form-group">
         <label for="userPassword">Password</label>
         <input
+          name="user_password"
           type="password"
           class="form-control"
           id="userPassword"
