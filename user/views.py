@@ -1,5 +1,4 @@
 from quart import Blueprint, current_app, render_template
-from sqlalchemy.sql import select
 
 from user.models import user_table
 
