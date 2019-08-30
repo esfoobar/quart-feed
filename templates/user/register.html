@@ -15,7 +15,7 @@ content %} {% include "navbar.html" %}
           type="email"
           class="form-control"
           id="userEmail"
-          value="{{ user_email }}"
+          value="{% if user_email %}{{ user_email }}{% endif %}"
           placeholder="Enter email"
         />
       </div>
