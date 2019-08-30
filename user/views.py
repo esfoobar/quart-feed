@@ -6,7 +6,7 @@ user_app = Blueprint("user_app", __name__)
 
 
 @user_app.route("/register", methods=["GET", "POST"])
-async def register():
+async def register() -> str:
     error: str = ""
     user_email: str = ""
     user_password: str = ""
