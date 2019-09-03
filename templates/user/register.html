@@ -9,23 +9,23 @@ content %} {% include "navbar.html" %}
     {% endif %}
     <form method="POST" action="{{ url_for('.register') }}" role="form">
       <div class="form-group">
-        <label for="userUsername">Username</label>
+        <label for="username">Username</label>
         <input
-          name="user_username"
+          name="username"
           type="text"
           class="form-control"
-          id="userUsername"
-          value="{% if user_username %}{{ user_username }}{% endif %}"
+          id="username"
+          value="{% if user_username %}{{ username }}{% endif %}"
           placeholder="Select a username"
         />
       </div>
       <div class="form-group">
-        <label for="userPassword">Password</label>
+        <label for="password">Password</label>
         <input
           name="user_password"
           type="password"
           class="form-control"
-          id="userPassword"
+          id="password"
           placeholder="Password"
         />
       </div>
