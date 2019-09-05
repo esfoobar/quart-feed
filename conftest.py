@@ -1,12 +1,10 @@
 import pytest
 import asyncio
 import os, sys
-from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-# These need to go above the create_app import
-parent = Path(__file__).resolve().parents[1]
+# This needs to go above the create_app import
 load_dotenv(".quartenv")
 
 from application import create_app
