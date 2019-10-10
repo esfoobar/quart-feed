@@ -6,6 +6,8 @@ from quart import (
     session,
     redirect,
     url_for,
+    flash,
+    current_app,
 )
 from passlib.hash import pbkdf2_sha256
 import uuid
@@ -37,7 +39,10 @@ async def register() -> Union[str, "Response"]:
         if not username or not password:
             error = "Please enter username and password"
 
-        if session.get("csrf_token") != form.get("csrf_token"):
+        if (
+            session.get("csrf_token") != form.get("csrf_token")
+            and not current_app.testing
+        ):
             error = "Invalid POST contents"
 
         # check if the user exists
@@ -50,11 +55,14 @@ async def register() -> Union[str, "Response"]:
 
         if not error:
             # register the user
-            del session["csrf_token"]
+            if not current_app.testing:
+                del session["csrf_token"]
+
             hash: str = pbkdf2_sha256.hash(password)
             stmt = user_table.insert().values(username=username, password=hash)
             result = await conn.execute(stmt)
             await conn.execute("commit")
+            await flash("You have been registered, please login")
             return redirect(url_for(".login"))
         else:
             session["csrf_token"] = str(csrf_token)
@@ -65,7 +73,7 @@ async def register() -> Union[str, "Response"]:
 
 
 @user_app.route("/login", methods=["GET", "POST"])
-async def login() -> str:
+async def login() -> Union[str, "Response"]:
     error: str = ""
     username: str = ""
     password: str = ""
@@ -82,7 +90,10 @@ async def login() -> str:
         if not username or not password:
             error = "Please enter username and password"
 
-        if session.get("csrf_token") != form.get("csrf_token"):
+        if (
+            session.get("csrf_token") != form.get("csrf_token")
+            and not current_app.testing
+        ):
             error = "Invalid POST contents"
 
         # check if the user exists
@@ -99,7 +110,9 @@ async def login() -> str:
 
         if not error:
             # login the user
-            del session["csrf_token"]
+            if not current_app.testing:
+                del session["csrf_token"]
+
             session["user_id"] = row.id
             session["username"] = row.username
             return "User logged in"
