@@ -22,7 +22,6 @@ def event_loop(request):
 @pytest.fixture(scope="module")
 async def create_db(event_loop):
     print("Creating db")
-    print("os.environ", os.environ)
     db_name = os.environ["DATABASE_NAME"] + "_test"
     db_host = os.environ["DB_HOST"]
     db_root_password = os.environ["MYSQL_ROOT_PASSWORD"]

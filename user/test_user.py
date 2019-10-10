@@ -25,10 +25,78 @@ async def test_initial_response(create_test_client, create_all):
 
 
 @pytest.mark.asyncio
-async def test_succesful_registration(create_test_client, create_all):
+async def test_succesful_registration(create_test_client, create_all, create_test_app):
     response = await create_test_client.post(
         "/register", form=user_dict(), follow_redirects=True
     )
     body = await response.get_data()
-    print(body)
-    assert "You have been registered" in str(body)
+    assert "Login" in str(body)
+
+    # check that the user was created on the database itself
+    async with create_test_app.app_context():
+        conn = current_app.sac
+        username_query = select([user_table.c.username])
+        result = await conn.execute(username_query)
+        result_row = await result.first()
+        username = result_row[user_table.c.username]
+        assert username == user_dict()["username"]
+
+
+@pytest.mark.asyncio
+async def test_missing_fields_registration(create_test_client, create_all):
+    # no fields
+    response = await create_test_client.post(
+        "/register", form={"username": "", "password": ""}
+    )
+    body = await response.get_data()
+    assert "Please enter username and password" in str(body)
+
+    # missing password
+    response = await create_test_client.post(
+        "/register", form={"username": "testuser", "password": ""}
+    )
+    body = await response.get_data()
+    assert "Please enter username and password" in str(body)
+
+    # missing username
+    response = await create_test_client.post(
+        "/register", form={"username": "", "password": "test123"}
+    )
+    body = await response.get_data()
+    assert "Please enter username and password" in str(body)
+
+
+@pytest.mark.asyncio
+async def test_existing_user_registration(create_test_client, create_all):
+    # no fields
+    response = await create_test_client.post("/register", form=user_dict())
+    body = await response.get_data()
+    assert "Username already exists" in str(body)
+
+
+@pytest.mark.asyncio
+async def test_succesful_login(create_test_client, create_all):
+    # no fields
+    response = await create_test_client.post("/login", form=user_dict())
+    body = await response.get_data()
+    assert "User logged in" in str(body)
+
+
+@pytest.mark.asyncio
+async def test_user_not_found_login(create_test_client, create_all):
+    # no fields
+    response = await create_test_client.post(
+        "/login", form={"username": "testuser2", "password": "test123"}
+    )
+    body = await response.get_data()
+    assert "User not found" in str(body)
+
+
+@pytest.mark.asyncio
+async def test_wrong_password_login(create_test_client, create_all):
+    # no fields
+    response = await create_test_client.post(
+        "/login", form={"username": "testuser", "password": "wrong123"}
+    )
+    body = await response.get_data()
+    assert "User not found" in str(body)

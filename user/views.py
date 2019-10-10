@@ -46,15 +46,18 @@ async def register() -> Union[str, "Response"]:
             error = "Invalid POST contents"
 
         # check if the user exists
-        conn = current_app.sac
-        stmt = user_table.select().where(user_table.c.username == form.get("username"))
-        result = await conn.execute(stmt)
-        row = await result.fetchone()
-        if row and row.id:
-            error = "Username already exists"
-
         if not error:
-            # register the user
+            conn = current_app.sac
+            stmt = user_table.select().where(
+                user_table.c.username == form.get("username")
+            )
+            result = await conn.execute(stmt)
+            row = await result.fetchone()
+            if row and row.id:
+                error = "Username already exists"
+
+        # register the user
+        if not error:
             if not current_app.testing:
                 del session["csrf_token"]
 
@@ -103,9 +106,8 @@ async def login() -> Union[str, "Response"]:
         row = await result.fetchone()
         if not row:
             error = "User not found"
-
         # check the password
-        if not pbkdf2_sha256.verify(password, row.password):
+        elif not pbkdf2_sha256.verify(password, row.password):
             error = "User not found"
 
         if not error:
