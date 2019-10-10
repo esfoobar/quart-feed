@@ -44,6 +44,7 @@ async def create_db(event_loop):
     # so that you get better error reports when performing test requests
     # against the application.
     yield {
+        "SECRET_KEY": "my_secret_key",
         "DB_USERNAME": db_username,
         "DB_PASSWORD": db_password,
         "DB_HOST": db_host,

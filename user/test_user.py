@@ -1,5 +1,5 @@
 import pytest
-from quart import current_app
+from quart import current_app, session
 from sqlalchemy import create_engine, select
 
 from user.models import user_table, metadata as UserMetadata
@@ -29,8 +29,12 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
     response = await create_test_client.post(
         "/register", form=user_dict(), follow_redirects=True
     )
+
+    # test client doesn't set cookies on redirects
+    # https://gitlab.com/pgjones/quart/issues/271
+    response = await create_test_client.get("/login")
     body = await response.get_data()
-    assert "Login" in str(body)
+    assert "You have been registered" in str(body)
 
     # check that the user was created on the database itself
     async with create_test_app.app_context():
@@ -75,11 +79,23 @@ async def test_existing_user_registration(create_test_client, create_all):
 
 
 @pytest.mark.asyncio
-async def test_succesful_login(create_test_client, create_all):
-    # no fields
-    response = await create_test_client.post("/login", form=user_dict())
+async def test_succesful_login(create_test_client, create_all, create_test_app):
+    response = await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
     body = await response.get_data()
     assert "User logged in" in str(body)
+
+    # Check that the session is being set
+    async with create_test_app.app_context() as ctx:
+        response = await create_test_app.test_client().post(
+            "/login", form=user_dict(), follow_redirects=True
+        )
+        response = await create_test_client.get("/login")
+        body = await response.get_data()
+        assert "testuser" in str(body)
+        # awaiting for Phil to respond
+        # assert session["user_id"] == 1
 
 
 @pytest.mark.asyncio
