@@ -86,16 +86,18 @@ async def test_succesful_login(create_test_client, create_all, create_test_app):
     body = await response.get_data()
     assert "User logged in" in str(body)
 
+    response = await create_test_app.test_client().post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
+    response = await create_test_client.get("/login")
+    body = await response.get_data()
+    assert "testuser" in str(body)
+
     # Check that the session is being set
     async with create_test_app.app_context() as ctx:
-        response = await create_test_app.test_client().post(
-            "/login", form=user_dict(), follow_redirects=True
-        )
-        response = await create_test_client.get("/login")
-        body = await response.get_data()
-        assert "testuser" in str(body)
         # awaiting for Phil to respond
         # assert session["user_id"] == 1
+        pass
 
 
 @pytest.mark.asyncio
