@@ -26,6 +26,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from user.models import metadata as UserMetadata
+from relationship.models import relationship_table
 
 target_metadata = [UserMetadata]
 
