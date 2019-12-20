@@ -145,7 +145,7 @@ async def logout() -> "Response":
     return redirect(url_for(".login"))
 
 
-@user_app.route("/<username>")
+@user_app.route("/user/<username>")
 @login_required
 async def profile(username) -> Union[str, "Response"]:
     # fetch the user
