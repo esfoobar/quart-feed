@@ -15,7 +15,11 @@ get_flashed_messages() %}
       Profile
     </a>
     {% endif %} {% if relationship == "not_following" %}
-    <a href="#" role="button" class="btn btn-default">
+    <a
+      href="{{ url_for('relationship_app.add_friend', username=username) }}"
+      role="button"
+      class="btn btn-default"
+    >
       <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
       Friend
     </a>
