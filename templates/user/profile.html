@@ -18,13 +18,17 @@ get_flashed_messages() %}
     <a
       href="{{ url_for('relationship_app.add_friend', username=username) }}"
       role="button"
-      class="btn btn-default"
+      class="btn btn-success"
     >
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add
-      Friend
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+      Follow
     </a>
     {% endif %} {% if relationship == "following" %}
-    <a href="#" role="button" class="btn btn-default">
+    <a
+      href="{{ url_for('relationship_app.remove_friend', username=username) }}"
+      role="button"
+      class="btn btn-danger"
+    >
       <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
       Unfollow
     </a>

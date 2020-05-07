@@ -17,8 +17,8 @@ from typing import Union, TYPE_CHECKING
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
-from user.models import user_table
-from relationship.models import relationship_table
+from user.models import user_table, get_user_by_username
+from relationship.models import relationship_table, existing_relationship
 from user.decorators import login_required
 
 user_app = Blueprint("user_app", __name__)
@@ -48,15 +48,12 @@ async def register() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
+        conn = current_app.sac
+
         # check if the user exists
         if not error:
-            conn = current_app.sac
-            stmt = user_table.select().where(
-                user_table.c.username == form.get("username")
-            )
-            result = await conn.execute(stmt)
-            row = await result.fetchone()
-            if row and row.id:
+            user_row = await get_user_by_username(conn, form.get("username"))
+            if user_row and user_row.id:
                 error = "Username already exists"
 
         # register the user
@@ -104,15 +101,14 @@ async def login() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        # check if the user exists
         conn = current_app.sac
-        stmt = user_table.select().where(user_table.c.username == form.get("username"))
-        result = await conn.execute(stmt)
-        row = await result.fetchone()
-        if not row:
+
+        # check if the user exists
+        user_row = await get_user_by_username(conn, form.get("username"))
+        if not user_row:
             error = "User not found"
         # check the password
-        elif not pbkdf2_sha256.verify(password, row.password):
+        elif not pbkdf2_sha256.verify(password, user_row.password):
             error = "User not found"
 
         if not error:
@@ -120,8 +116,8 @@ async def login() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            session["user_id"] = row.id
-            session["username"] = row.username
+            session["user_id"] = user_row.id
+            session["username"] = user_row.username
 
             if "next" in session:
                 next = session.get("next")
@@ -148,29 +144,22 @@ async def logout() -> "Response":
 @user_app.route("/user/<username>")
 @login_required
 async def profile(username) -> Union[str, "Response"]:
-    # fetch the user
     conn = current_app.sac
-    stmt = user_table.select().where(user_table.c.username == username)
-    result = await conn.execute(stmt)
-    profile_user = await result.fetchone()
+
+    # fetch the user
+    user_row = await get_user_by_username(conn, username)
 
     # user not found
-    if not profile_user:
+    if not user_row:
         abort(404)
 
     relationship: str = ""
 
     # see if we're looking at our own profile
-    if profile_user.id == session.get("user_id"):
+    if user_row.id == session.get("user_id"):
         relationship = "self"
     else:
-        stmt = relationship_table.select().where(
-            (relationship_table.c.fm_user_id == session.get("user_id"))
-            & (relationship_table.c.to_user_id == profile_user.id)
-        )
-        result = await conn.execute(stmt)
-        relationship_record = await result.fetchone()
-        if relationship_record:
+        if await existing_relationship(conn, session.get("user_id"), user_row.id):
             relationship = "following"
         else:
             relationship = "not_following"
