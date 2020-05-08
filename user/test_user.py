@@ -29,10 +29,6 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
     response = await create_test_client.post(
         "/register", form=user_dict(), follow_redirects=True
     )
-
-    # test client doesn't set cookies on redirects
-    # https://gitlab.com/pgjones/quart/issues/271
-    response = await create_test_client.get("/login")
     body = await response.get_data()
     assert "You have been registered" in str(body)
 
@@ -96,8 +92,7 @@ async def test_succesful_login(create_test_client, create_all, create_test_app):
     # Check that the session is being set
     async with create_test_app.app_context() as ctx:
         # awaiting for Phil to respond
-        # assert session["user_id"] == 1
-        pass
+        assert session["user_id"] == 1
 
 
 @pytest.mark.asyncio

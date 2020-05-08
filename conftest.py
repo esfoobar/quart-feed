@@ -11,7 +11,7 @@ from application import create_app
 
 # We need our own module-level event_loop
 # since pytest's is a function-level fixture
-@pytest.yield_fixture(scope="module")
+@pytest.yield_fixture(scope="session")
 def event_loop(request):
     loop = asyncio.get_event_loop()
     yield loop
