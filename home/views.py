@@ -8,6 +8,7 @@ from quart import (
     flash,
     abort,
 )
+from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -16,6 +17,6 @@ if TYPE_CHECKING:
 home_app = Blueprint("home_app", __name__)
 
 
-@user_app.route("/register", methods=["GET", "POST"])
+@home_app.route("/", methods=["GET"])
 async def register() -> Union[str, "Response"]:
-    error: str = ""
+    return "<h1>Welcome to QuartFeed</h1>"

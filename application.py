@@ -16,10 +16,12 @@ def create_app(**config_overrides):
     # import blueprints
     from user.views import user_app
     from relationship.views import relationship_app
+    from home.views import home_app
 
     # register blueprints
     app.register_blueprint(user_app)
     app.register_blueprint(relationship_app)
+    app.register_blueprint(home_app)
 
     @app.before_serving
     async def create_db_conn():
