@@ -7,7 +7,7 @@ verify_ssl = true
 mypy = "==0.720"
 
 [packages]
-quart = "==0.9"
+quart = "==0.13"
 python-dotenv = "==0.10.1"
 aiomysql = "==0.0.20"
 sqlalchemy = "==1.3"

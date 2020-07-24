@@ -29,6 +29,7 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
         "/register", form=user_dict(), follow_redirects=True
     )
     body = await response.get_data()
+    # TODO: flashed messages not being read on redirects
     # assert "You have been registered" in str(body)
 
     # check that the user was created on the database itself
@@ -91,8 +92,8 @@ async def test_succesful_login(create_test_client, create_all, create_test_app):
     # Check that the session is being set
     async with create_test_app.app_context() as ctx:
         # Start a session transaction (when Quart is upgraded)
-        # with ctx.session_transaction() as sess:
-        #     assert sess["user_id"] == 1
+        with ctx.session_transaction() as sess:
+            assert sess["user_id"] == 1
         pass
 
 

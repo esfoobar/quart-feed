@@ -11,8 +11,8 @@
                       @{{ session.username }} <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">View profile</a></li>
-                        <li><a href="#">Edit profile</a></li>
+                        <li><a href="{{ url_for('.profile', username=session.username )}}">View profile</a></li>
+                        <li><a href="{{ url_for('.profile_edit')}}">Edit profile</a></li>
                         <li><a href="#">Change password</a></li>
                     </ul>
                 </li>

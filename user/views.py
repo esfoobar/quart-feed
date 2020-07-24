@@ -52,7 +52,7 @@ async def register() -> Union[str, "Response"]:
 
         # check if the user exists
         if not error:
-            user_row = await get_user_by_username(conn, form.get("username"))
+            user_row = await get_user_by_username(conn, username)
             if user_row and user_row.id:
                 error = "Username already exists"
 
@@ -141,6 +141,56 @@ async def logout() -> "Response":
     return redirect(url_for(".login"))
 
 
+@user_app.route("/user/edit")
+@login_required
+async def profile_edit() -> Union[str, "Response"]:
+    error: str = ""
+    username: str = ""
+    csrf_token: uuid.UUID = uuid.uuid4()
+
+    if request.method == "GET":
+        session["csrf_token"] = str(csrf_token)
+
+    if request.method == "POST":
+        form: dict = await request.form
+        username = form.get("username", "")
+
+        if not username:
+            error = "Please enter username"
+
+        if (
+            session.get("csrf_token") != form.get("csrf_token")
+            and not current_app.testing
+        ):
+            error = "Invalid POST contents"
+
+        conn = current_app.sac
+
+        # check if the user exists
+        if not error:
+            user_row = await get_user_by_username(conn, username)
+            if user_row and user_row.id:
+                error = "Username already exists"
+
+        # register the user
+        if not error:
+            if not current_app.testing:
+                del session["csrf_token"]
+
+            stmt = user_table.update(username=session["username"]).values(
+                username=username
+            )
+            result = await conn.execute(stmt)
+            await conn.execute("commit")
+            await flash("Profile edited")
+        else:
+            session["csrf_token"] = str(csrf_token)
+
+    return await render_template(
+        "user/profile_edit.html", error=error, username=username, csrf_token=csrf_token
+    )
+
+
 @user_app.route("/user/<username>")
 @login_required
 async def profile(username) -> Union[str, "Response"]:
@@ -167,3 +217,4 @@ async def profile(username) -> Union[str, "Response"]:
     return await render_template(
         "user/profile.html", username=username, relationship=relationship
     )
+
