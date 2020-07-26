@@ -13,10 +13,10 @@ WORKDIR /counter_app
 ADD . .
 
 # pipenv install
-RUN pipenv install --system --deploy
+RUN pipenv install
 
 # Listen to port 5000 at runtime
 EXPOSE 5000
 
 # Define our command to be run when launching the container
-CMD quart run --host 0.0.0.0
+CMD pipenv run quart run --host 0.0.0.0

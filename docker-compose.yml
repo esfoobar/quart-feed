@@ -5,10 +5,10 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./:/counter_app
+      - ./:/quartfeed_app
     links:
       - db:mysql
-    container_name: counterappmysql_web_1
+    container_name: quartfeed_web_1
     depends_on:
       - db
     stdin_open: true
@@ -18,18 +18,18 @@ services:
       SECRET_KEY: "you-will-never-guess"
       DEBUG: 1 # can't pass True here, but 1 works
       MYSQL_ROOT_PASSWORD: rootpass
-      DB_USERNAME: counter_user
-      DB_PASSWORD: counter_password
+      DB_USERNAME: quartfeed_user
+      DB_PASSWORD: quartfeed_password
       DB_HOST: mysql
-      DATABASE_NAME: counter
+      DATABASE_NAME: quartfeed
   db:
     image: mysql:5.7
     restart: always
-    container_name: counterappmysql_db_1
+    container_name: quartfeed_db_1
     ports:
       - "3306:3306"
     environment:
-      MYSQL_USER: counter_user
-      MYSQL_PASSWORD: counter_password
+      MYSQL_USER: quartfeed_user
+      MYSQL_PASSWORD: quartfeed_password
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: counter
+      MYSQL_DATABASE: quartfeed
