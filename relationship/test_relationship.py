@@ -20,11 +20,11 @@ def create_all(create_db):
 @pytest.mark.asyncio
 async def test_succesful_follow(create_test_client, create_all, create_test_app):
     # create users
-    await create_test_client.post("/register", form=user_dict("user1"))
-    await create_test_client.post("/register", form=user_dict("user2"))
+    response = await create_test_client.post("/register", form=user_dict("user1"))
+    response = await create_test_client.post("/register", form=user_dict("user2"))
 
     # login as user1
-    await create_test_client.post("/login", form=user_dict("user1"))
+    response = await create_test_client.post("/login", form=user_dict("user1"))
 
     # visit his profile
     response = await create_test_client.get("/user/user2")
@@ -34,5 +34,4 @@ async def test_succesful_follow(create_test_client, create_all, create_test_app)
     # Follow user2
     response = await create_test_client.get("/add_friend/user2")
     body = await response.get_data()
-    print(str(body))
-    # assert "Followed user2" in str(body)
+    assert "Followed user2" in str(body)
