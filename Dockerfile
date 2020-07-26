@@ -4,10 +4,10 @@ FROM python:3.7.3-slim
 RUN pip install pipenv
 
 ## make a local directory
-RUN mkdir /counter_app
+RUN mkdir /quartfeed_app
 
 # set "counter_app" as the working directory from which CMD, RUN, ADD references
-WORKDIR /counter_app
+WORKDIR /quartfeed_app
 
 # now copy all the files in this directory to /code
 ADD . .
