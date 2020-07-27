@@ -111,3 +111,42 @@ async def test_wrong_password_login(create_test_client, create_all):
     )
     body = await response.get_data()
     assert "User not found" in str(body)
+
+
+@pytest.mark.asyncio
+async def test_profile_edit(create_test_app, create_test_client, create_all):
+    # login
+    response = await create_test_client.post(
+        "/login", form=user_dict(), follow_redirects=True
+    )
+
+    # no fields entered
+    response = await create_test_client.post(
+        "/profile/edit", form={"username": ""}, follow_redirects=True
+    )
+    body = await response.get_data()
+    assert "Please enter username" in str(body)
+
+    # collision with testuser2
+    test_user_2 = user_dict()
+    test_user_2["username"] = "testuser2"
+    await create_test_client.post("/register", form=test_user_2)
+
+    # try editing with testuser2
+    response = await create_test_client.post(
+        "/profile/edit", form={"username": "testuser2"}, follow_redirects=True
+    )
+    body = await response.get_data()
+    assert "Username already exists" in str(body)
+
+    # succesful edit
+    response = await create_test_client.post(
+        "/profile/edit", form={"username": "testuser_edited"}, follow_redirects=True
+    )
+    body = await response.get_data()
+    assert "Profile edited" in str(body)
+    assert "@testuser_edited" in str(body)
+
+    # check session was changed
+    async with create_test_client.session_transaction() as sess:
+        assert sess["username"] == "testuser_edited"
