@@ -29,8 +29,7 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
         "/register", form=user_dict(), follow_redirects=True
     )
     body = await response.get_data()
-    # TODO: flashed messages not being read on redirects
-    # assert "You have been registered" in str(body)
+    assert "You have been registered" in str(body)
 
     # check that the user was created on the database itself
     async with create_test_app.app_context():
