@@ -91,7 +91,6 @@ async def test_succesful_login(create_test_client, create_all, create_test_app):
 
     # Check that the session is being set
     async with create_test_client.session_transaction() as sess:
-        # Start a session transaction (when Quart is upgraded)
         assert sess["user_id"] == 1
 
 

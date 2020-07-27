@@ -20,8 +20,8 @@ def create_all(create_db):
 @pytest.mark.asyncio
 async def test_succesful_follow(create_test_client, create_all, create_test_app):
     # create users
-    response = await create_test_client.post("/register", form=user_dict("user1"))
-    response = await create_test_client.post("/register", form=user_dict("user2"))
+    await create_test_client.post("/register", form=user_dict("user1"))
+    await create_test_client.post("/register", form=user_dict("user2"))
 
     # login as user1
     response = await create_test_client.post("/login", form=user_dict("user1"))
@@ -33,5 +33,11 @@ async def test_succesful_follow(create_test_client, create_all, create_test_app)
 
     # Follow user2
     response = await create_test_client.get("/add_friend/user2")
+    body = await response.get_data()
+
+    # visit the profile again to get flashed messages
+    # since the redirect to referrer is empty since we
+    # hit the follow user link directly
+    response = await create_test_client.get("/user/user2")
     body = await response.get_data()
     assert "Followed user2" in str(body)
