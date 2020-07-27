@@ -1,5 +1,5 @@
 {
   "python.linting.mypyEnabled": true,
   "python.linting.enabled": true,
-  "python.pythonPath": "/usr/local/bin/python3"
+  "python.pythonPath": "/Users/jorescobar/.local/share/virtualenvs/quart-feed-Mc877QvU/bin/python"
 }
