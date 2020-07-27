@@ -141,7 +141,7 @@ async def logout() -> "Response":
     return redirect(url_for(".login"))
 
 
-@user_app.route("/user/edit")
+@user_app.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 async def profile_edit() -> Union[str, "Response"]:
     error: str = ""
@@ -172,17 +172,23 @@ async def profile_edit() -> Union[str, "Response"]:
             if user_row and user_row.id:
                 error = "Username already exists"
 
-        # register the user
+        # edit the profile
         if not error:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            stmt = user_table.update(username=session["username"]).values(
-                username=username
-            )
+            stmt = user_table.update(
+                user_table.c.username == session["username"]
+            ).values(username=username)
             result = await conn.execute(stmt)
             await conn.execute("commit")
+
+            # update session with new username
+            session["username"] = username
+
+            # update session
             await flash("Profile edited")
+            return redirect(url_for(".profile", username=username))
         else:
             session["csrf_token"] = str(csrf_token)
 
