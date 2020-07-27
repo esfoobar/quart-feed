@@ -155,14 +155,14 @@ async def profile(username) -> Union[str, "Response"]:
 
     relationship: str = ""
 
-    # see if we're looking at our own profile
-    if user_row.id == session.get("user_id"):
-        relationship = "self"
-    else:
-        if await existing_relationship(conn, session.get("user_id"), user_row.id):
-            relationship = "following"
-        else:
-            relationship = "not_following"
+    # # see if we're looking at our own profile
+    # if user_row.id == session.get("user_id"):
+    #     relationship = "self"
+    # else:
+    #     if await existing_relationship(conn, session.get("user_id"), user_row.id):
+    #         relationship = "following"
+    #     else:
+    #         relationship = "not_following"
 
     return await render_template(
         "user/profile.html", username=username, relationship=relationship
