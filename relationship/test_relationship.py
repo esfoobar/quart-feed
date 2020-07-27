@@ -12,7 +12,6 @@ def user_dict(username):
 
 @pytest.fixture(scope="module")
 def create_all(create_db):
-    print("Creating Models")
     engine = create_engine(create_db["DB_URI"] + "/" + create_db["DATABASE_NAME"])
     UserMetadata.bind = engine
     UserMetadata.create_all()
@@ -23,14 +22,6 @@ async def test_succesful_follow(create_test_client, create_all, create_test_app)
     # create users
     await create_test_client.post("/register", form=user_dict("user1"))
     await create_test_client.post("/register", form=user_dict("user2"))
-
-    # check users on db
-    async with create_test_app.app_context():
-        conn = current_app.sac
-        username_query = select([user_table.c.username])
-        result = await conn.execute(username_query)
-        for row in await result.fetchall():
-            print(row)
 
     # login as user1
     await create_test_client.post("/login", form=user_dict("user1"))
@@ -44,4 +35,10 @@ async def test_succesful_follow(create_test_client, create_all, create_test_app)
     response = await create_test_client.get("/add_friend/user2")
     body = await response.get_data()
     print(str(body))
-    # assert "Followed user2" in str(body)
+
+    # visit the profile again to get flashed messages
+    # since the redirect to referrer is empty since we
+    # hit the follow user link directly
+    response = await create_test_client.get("/user/user2")
+    body = await response.get_data()
+    assert "Followed user2" in str(body)
