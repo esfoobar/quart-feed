@@ -223,7 +223,7 @@ async def profile(username) -> Union[str, "Response"]:
 @login_required
 async def user_list() -> Union[str, "Response"]:
     conn = current_app.sac
-    username_query = select([user_table.c.username])
+    username_query = user_table.select([user_table.c.username])
     result = await conn.execute(username_query)
     for row in await result.fetchall():
         print(row)
