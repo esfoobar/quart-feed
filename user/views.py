@@ -145,7 +145,7 @@ async def logout() -> "Response":
 @login_required
 async def profile_edit() -> Union[str, "Response"]:
     error: str = ""
-    username: str = ""
+    username: str = session.get("username")
     csrf_token: uuid.UUID = uuid.uuid4()
 
     if request.method == "GET":
@@ -166,8 +166,8 @@ async def profile_edit() -> Union[str, "Response"]:
 
         conn = current_app.sac
 
-        # check if the user exists
-        if not error:
+        # check if the user exists if username changed
+        if not error and session["username"] != username:
             user_row = await get_user_by_username(conn, username)
             if user_row and user_row.id:
                 error = "Username already exists"
