@@ -14,6 +14,8 @@ from passlib.hash import pbkdf2_sha256
 import uuid
 from typing import Union, TYPE_CHECKING
 import os
+from werkzeug.utils import secure_filename
+from sqlalchemy import select
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -176,22 +178,30 @@ async def profile_edit() -> Union[str, "Response"]:
                 error = "Username already exists"
 
         # check image
+        changed_image: bool = False
         files = await request.files
         if "profile_image" in files:
             profile_image = files["profile_image"]
-            filename = str(uuid.uuid4()) + "-" + profile_image.filename
+            filename = str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             profile_image.save(file_path)
             image_uid = thumbnail_process(file_path, "user", str(session["user_id"]))
+            changed_image = True
 
         # edit the profile
         if not error:
             if not current_app.testing:
                 del session["csrf_token"]
 
+            user_dict: dict = {}
+            user_dict["username"] = username
+
+            if changed_image:
+                user_dict["image"] = image_uid
+
             stmt = user_table.update(
                 user_table.c.username == session["username"]
-            ).values(username=username)
+            ).values(user_dict)
             result = await conn.execute(stmt)
             await conn.execute("commit")
 
@@ -241,8 +251,9 @@ async def profile(username) -> Union[str, "Response"]:
 @login_required
 async def user_list() -> Union[str, "Response"]:
     conn = current_app.sac
-    username_query = user_table.select([user_table.c.username])
+    username_query = select([user_table.c.username])
     result = await conn.execute(username_query)
+
     for row in await result.fetchall():
         print(row)
 

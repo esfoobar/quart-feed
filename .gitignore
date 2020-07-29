@@ -9,3 +9,4 @@ __pycache__
 .venv
 .mypy_cache
 static/uploads
+static/images/user

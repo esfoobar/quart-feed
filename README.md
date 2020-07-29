@@ -26,6 +26,7 @@ This is a boilerplate for a Quart app that can run as a pipenv, Heroku or Docker
   - `docker-compose run --rm web pipenv run alembic upgrade head` to initialize migrations
 - Open `http://localhost:5000` on your browser
 - Run tests by doing `docker-compose run --rm web pipenv run pytest -s`
+- Changes to the models, do `docker-compose run --rm web pipenv run alembic revision --autogenerate -m "added new table field"` and then `docker-compose run --rm web pipenv run alembic upgrade head`
 
 ## Production
 
