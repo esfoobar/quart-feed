@@ -2,7 +2,7 @@ from wand.image import Image
 import os
 import uuid
 
-from settings import UPLOAD_FOLDER
+from settings import IMAGES_FOLDER
 
 # file = location of raw file
 # content_type = app name (i.e. user, post, etc.); these need to be existing folders
@@ -24,7 +24,7 @@ def thumbnail_process(
         img.format = "png"
         img.save(
             filename=os.path.join(
-                UPLOAD_FOLDER, content_type, filename_template % (image_id, "raw")
+                IMAGES_FOLDER, content_type, filename_template % (image_id, "raw")
             )
         )
 
@@ -36,7 +36,7 @@ def thumbnail_process(
             img.format = "png"
             img.save(
                 filename=os.path.join(
-                    UPLOAD_FOLDER, content_type, filename_template % (image_id, name)
+                    IMAGES_FOLDER, content_type, filename_template % (image_id, name)
                 )
             )
 

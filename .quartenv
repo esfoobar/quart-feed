@@ -7,3 +7,4 @@ DB_HOST=localhost
 DATABASE_NAME=quartfeed
 MYSQL_ROOT_PASSWORD=rootpass
 UPLOAD_FOLDER='/opt/flaskbook/static/uploads'
+IMAGES_FOLDER='/opt/flaskbook/static/images'

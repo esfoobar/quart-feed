@@ -23,6 +23,7 @@ services:
       DB_HOST: mysql
       DATABASE_NAME: quartfeed
       UPLOAD_FOLDER: "/quartfeed_app/static/uploads"
+      IMAGES_FOLDER: "/quartfeed_app/static/images"
   db:
     image: mysql:5.7
     restart: always
