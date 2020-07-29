@@ -7,7 +7,17 @@ content %} {% include "navbar.html" %}
     {% if error %}
     <div class="alert alert-danger" role="alert">{{ error }}</div>
     {% endif %}
-    <form method="POST" action="{{ url_for('.profile_edit') }}" role="form">
+    <form
+      method="POST"
+      action="{{ url_for('.profile_edit') }}"
+      role="form"
+      enctype="multipart/form-data"
+    >
+      <div class="form-group">
+        <label for="profileImage">Add your profile picture</label>
+        <input name="profile_image" type="file" id="profileImage" />
+        <p class="help-block">We accept PNG, JPG or GIF</p>
+      </div>
       <div class="form-group">
         <label for="username">Username</label>
         <input
@@ -20,7 +30,7 @@ content %} {% include "navbar.html" %}
         />
       </div>
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-      <button type="submit" class="btn btn-default">Edit Profile</button>
+      <button type="submit" class="btn btn-primary">Edit Profile</button>
     </form>
   </div>
 </div>

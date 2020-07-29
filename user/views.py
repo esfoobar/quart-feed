@@ -13,6 +13,7 @@ from quart import (
 from passlib.hash import pbkdf2_sha256
 import uuid
 from typing import Union, TYPE_CHECKING
+import os
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -20,6 +21,8 @@ if TYPE_CHECKING:
 from user.models import user_table, get_user_by_username
 from relationship.models import relationship_table, existing_relationship
 from user.decorators import login_required
+from settings import UPLOAD_FOLDER
+from utilities.imaging import thumbnail_process
 
 user_app = Blueprint("user_app", __name__)
 
@@ -171,6 +174,15 @@ async def profile_edit() -> Union[str, "Response"]:
             user_row = await get_user_by_username(conn, username)
             if user_row and user_row.id:
                 error = "Username already exists"
+
+        # check image
+        files = await request.files
+        if "profile_image" in files:
+            profile_image = files["profile_image"]
+            filename = str(uuid.uuid4()) + "-" + profile_image.filename
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            profile_image.save(file_path)
+            image_uid = thumbnail_process(file_path, "user", str(session["user_id"]))
 
         # edit the profile
         if not error:
