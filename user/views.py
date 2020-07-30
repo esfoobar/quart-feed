@@ -57,8 +57,8 @@ async def register() -> Union[str, "Response"]:
 
         # check if the user exists
         if not error:
-            user_row = await get_user_by_username(conn, username)
-            if user_row and user_row.id:
+            user = await get_user_by_username(conn, username)
+            if user and user["id"]:
                 error = "Username already exists"
 
         # register the user
@@ -109,11 +109,11 @@ async def login() -> Union[str, "Response"]:
         conn = current_app.sac
 
         # check if the user exists
-        user_row = await get_user_by_username(conn, form.get("username"))
-        if not user_row:
+        user = await get_user_by_username(conn, form.get("username"))
+        if not user:
             error = "User not found"
         # check the password
-        elif not pbkdf2_sha256.verify(password, user_row.password):
+        elif not pbkdf2_sha256.verify(password, user.get("password")):
             error = "User not found"
 
         if not error:
@@ -121,8 +121,8 @@ async def login() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            session["user_id"] = user_row.id
-            session["username"] = user_row.username
+            session["user_id"] = user.get("id")
+            session["username"] = user.get("username")
 
             if "next" in session:
                 next = session.get("next")
@@ -150,17 +150,20 @@ async def logout() -> "Response":
 @login_required
 async def profile_edit() -> Union[str, "Response"]:
     error: str = ""
-    username: str = session.get("username")
     csrf_token: uuid.UUID = uuid.uuid4()
+
+    # grab the user's details
+    conn = current_app.sac
+    profile_user = await get_user_by_username(conn, session["username"])
 
     if request.method == "GET":
         session["csrf_token"] = str(csrf_token)
 
     if request.method == "POST":
         form: dict = await request.form
-        username = form.get("username", "")
+        form_username = form.get("username", "")
 
-        if not username:
+        if not form_username:
             error = "Please enter username"
 
         if (
@@ -169,23 +172,23 @@ async def profile_edit() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        conn = current_app.sac
-
-        # check if the user exists if username changed
-        if not error and session["username"] != username:
-            user_row = await get_user_by_username(conn, username)
-            if user_row and user_row.id:
+        # check if the username exists if username changed
+        if not error and session["username"] != form_username:
+            user = await get_user_by_username(conn, form_username)
+            if user and user["id"]:
                 error = "Username already exists"
 
-        # check image
+        # image upload
         changed_image: bool = False
         files = await request.files
-        if "profile_image" in files:
-            profile_image = files["profile_image"]
+        profile_image = files.get("profile_image")
+
+        # if content_length is 0, no file was uploaded
+        if profile_image and profile_image.content_length:
             filename = str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             profile_image.save(file_path)
-            image_uid = thumbnail_process(file_path, "user", str(session["user_id"]))
+            image_uid = thumbnail_process(file_path, "user", str(profile_user["id"]))
             changed_image = True
 
         # edit the profile
@@ -193,29 +196,34 @@ async def profile_edit() -> Union[str, "Response"]:
             if not current_app.testing:
                 del session["csrf_token"]
 
-            user_dict: dict = {}
-            user_dict["username"] = username
+            profile_user["username"] = form_username
 
             if changed_image:
-                user_dict["image"] = image_uid
+                profile_user["image"] = image_uid
 
-            stmt = user_table.update(
-                user_table.c.username == session["username"]
-            ).values(user_dict)
+            # delete the profile image_url before updating
+            del profile_user["image_url"]
+
+            stmt = user_table.update(user_table.c.id == profile_user["id"]).values(
+                profile_user
+            )
             result = await conn.execute(stmt)
             await conn.execute("commit")
 
             # update session with new username
-            session["username"] = username
+            session["username"] = form_username
 
             # update session
             await flash("Profile edited")
-            return redirect(url_for(".profile", username=username))
+            return redirect(url_for(".profile", username=profile_user["username"]))
         else:
             session["csrf_token"] = str(csrf_token)
 
     return await render_template(
-        "user/profile_edit.html", error=error, username=username, csrf_token=csrf_token
+        "user/profile_edit.html",
+        error=error,
+        profile_user=profile_user,
+        csrf_token=csrf_token,
     )
 
 
@@ -225,19 +233,19 @@ async def profile(username) -> Union[str, "Response"]:
     conn = current_app.sac
 
     # fetch the user
-    user_row = await get_user_by_username(conn, username)
+    user = await get_user_by_username(conn, username)
 
     # user not found
-    if not user_row:
+    if not user:
         abort(404)
 
     relationship: str = ""
 
     # see if we're looking at our own profile
-    if user_row.id == session.get("user_id"):
+    if user["id"] == session.get("user_id"):
         relationship = "self"
     else:
-        if await existing_relationship(conn, session.get("user_id"), user_row.id):
+        if await existing_relationship(conn, session.get("user_id"), user["id"]):
             relationship = "following"
         else:
             relationship = "not_following"

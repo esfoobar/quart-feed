@@ -14,6 +14,7 @@ content %} {% include "navbar.html" %}
       enctype="multipart/form-data"
     >
       <div class="form-group">
+        <!-- <img class="img-thumbnail" src="#" width="200" height="200" alt="#" /> -->
         <label for="profileImage">Add your profile picture</label>
         <input name="profile_image" type="file" id="profileImage" />
         <p class="help-block">We accept PNG, JPG or GIF</p>
@@ -25,7 +26,7 @@ content %} {% include "navbar.html" %}
           type="text"
           class="form-control"
           id="username"
-          value="{% if username %}{{ username }}{% endif %}"
+          value="{% if profile_user.username %}{{ profile_user.username }}{% endif %}"
           placeholder="Select a username"
         />
       </div>

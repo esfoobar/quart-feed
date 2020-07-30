@@ -30,19 +30,19 @@ async def add_friend(username) -> Union[str, "Response"]:
     logged_user_id = session.get("user_id")
 
     # check if user exists
-    to_user_row = await get_user_by_username(conn, username)
-    if not to_user_row:
+    to_user = await get_user_by_username(conn, username)
+    if not to_user:
         abort(404)
 
     # check if the relationship already exists
-    if not await existing_relationship(conn, logged_user_id, to_user_row.id):
+    if not await existing_relationship(conn, logged_user_id, to_user["id"]):
         # store the relationship
         stmt = relationship_table.insert().values(
-            fm_user_id=logged_user_id, to_user_id=to_user_row.id
+            fm_user_id=logged_user_id, to_user_id=to_user["id"]
         )
         result = await conn.execute(stmt)
         await conn.execute("commit")
-        await flash(f"Followed {to_user_row.username}")
+        await flash(f"Followed {to_user['username']}")
 
     # redirect back to the calling url
     return redirect(referrer)
@@ -56,20 +56,20 @@ async def remove_friend(username) -> Union[str, "Response"]:
     logged_user_id = session.get("user_id")
 
     # check if user exists
-    to_user_row = await get_user_by_username(conn, username)
-    if not to_user_row:
+    to_user = await get_user_by_username(conn, username)
+    if not to_user:
         abort(404)
 
     # check if the relationship already exists
-    if await existing_relationship(conn, logged_user_id, to_user_row.id):
+    if await existing_relationship(conn, logged_user_id, to_user["id"]):
         # remove the relationship
         stmt = relationship_table.delete().where(
             (relationship_table.c.fm_user_id == logged_user_id)
-            & (relationship_table.c.to_user_id == to_user_row.id)
+            & (relationship_table.c.to_user_id == to_user["id"])
         )
         result = await conn.execute(stmt)
         await conn.execute("commit")
-        await flash(f"Unfollowed {to_user_row.username}")
+        await flash(f"Unfollowed {to_user['username']}")
 
     # redirect back to the calling url
     return redirect(referrer)
