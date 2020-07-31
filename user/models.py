@@ -27,7 +27,21 @@ async def get_user_by_username(conn: SAConnection, username: str) -> dict:
 
     # compute the image url
     if user_dict["image"]:
-        user_dict["image_url"] = f"{IMAGES_URL}/user/{user_dict['image']}.png"
+        user_dict[
+            "image_url_raw"
+        ] = f"{IMAGES_URL}/user/{user_dict['id']}.{user_dict['image']}.raw.png"
+        user_dict[
+            "image_url_xlg"
+        ] = f"{IMAGES_URL}/user/{user_dict['id']}.{user_dict['image']}.xlg.png"
+        user_dict[
+            "image_url_lg"
+        ] = f"{IMAGES_URL}/user/{user_dict['id']}.{user_dict['image']}.lg.png"
+        user_dict[
+            "image_url_sm"
+        ] = f"{IMAGES_URL}/user/{user_dict['id']}.{user_dict['image']}.sm.png"
     else:
-        user_dict["image_url"] = f"{IMAGES_URL}/user/profile.png"
+        user_dict["image_url_raw"] = f"{IMAGES_URL}/user/profile.raw.png"
+        user_dict["image_url_xlg"] = f"{IMAGES_URL}/user/profile.xlg.png"
+        user_dict["image_url_lg"] = f"{IMAGES_URL}/user/profile.lg.png"
+        user_dict["image_url_sm"] = f"{IMAGES_URL}/user/profile.sm.png"
     return user_dict

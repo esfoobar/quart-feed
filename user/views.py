@@ -178,18 +178,23 @@ async def profile_edit() -> Union[str, "Response"]:
             if user and user["id"]:
                 error = "Username already exists"
 
-        # image upload
+        # image upload (skip if testing)
         changed_image: bool = False
-        files = await request.files
-        profile_image = files.get("profile_image")
+        if not current_app.testing:
+            files = await request.files
+            profile_image = files.get("profile_image")
 
-        # if content_length is 0, no file was uploaded
-        if profile_image and profile_image.content_length:
-            filename = str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
-            file_path = os.path.join(UPLOAD_FOLDER, filename)
-            profile_image.save(file_path)
-            image_uid = thumbnail_process(file_path, "user", str(profile_user["id"]))
-            changed_image = True
+            # if no filename, no file was uploaded
+            if profile_image.filename:
+                filename = (
+                    str(uuid.uuid4()) + "-" + secure_filename(profile_image.filename)
+                )
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                profile_image.save(file_path)
+                image_uid = thumbnail_process(
+                    file_path, "user", str(profile_user["id"])
+                )
+                changed_image = True
 
         # edit the profile
         if not error:
@@ -201,8 +206,11 @@ async def profile_edit() -> Union[str, "Response"]:
             if changed_image:
                 profile_user["image"] = image_uid
 
-            # delete the profile image_url before updating
-            del profile_user["image_url"]
+            # delete the profile image_urls before updating
+            del profile_user["image_url_raw"]
+            del profile_user["image_url_xlg"]
+            del profile_user["image_url_lg"]
+            del profile_user["image_url_sm"]
 
             stmt = user_table.update(user_table.c.id == profile_user["id"]).values(
                 profile_user
@@ -251,7 +259,7 @@ async def profile(username) -> Union[str, "Response"]:
             relationship = "not_following"
 
     return await render_template(
-        "user/profile.html", username=username, relationship=relationship
+        "user/profile.html", user=user, relationship=relationship
     )
 
 
