@@ -27,7 +27,7 @@ get_flashed_messages() %}
     </a>
     {% endif %} {% if relationship == "not_following" %}
     <a
-      href="{{ url_for('relationship_app.add_friend', username=username) }}"
+      href="{{ url_for('relationship_app.add_friend', username=user.username) }}"
       role="button"
       class="btn btn-success"
     >
@@ -36,7 +36,7 @@ get_flashed_messages() %}
     </a>
     {% endif %} {% if relationship == "following" %}
     <a
-      href="{{ url_for('relationship_app.remove_friend', username=username) }}"
+      href="{{ url_for('relationship_app.remove_friend', username=user.username) }}"
       role="button"
       class="btn btn-danger"
     >
