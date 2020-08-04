@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block title %}Welcome to QuartFeed{% endblock %} {%
+block content %} {% include "navbar.html" %}
+
+<div class="row">
+  <div class="col-md-offset-1 col-md-10">
+    <h3>Home</h3>
+
+    <div class="post-form">
+      {% for message in get_flashed_messages() %}
+      <div class="alert alert-success">{{ message }}</div>
+      {% endfor %}
+      <form method="POST" action="{{ url_for('post_app.post') }}" role="form">
+        <div class="form-group">
+          <label for="post-entry">Post a Message</label>
+          <textarea
+            name="post"
+            class="form-control"
+            rows="3"
+            placeholder="Say something..."
+          ></textarea>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <button type="submit" class="btn btn-primary">Post</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
