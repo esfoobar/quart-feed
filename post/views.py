@@ -17,6 +17,8 @@ from sqlalchemy import select
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
+from post.models import post_table, like_table, feed_table
+
 post_app = Blueprint("post_app", __name__)
 
 
