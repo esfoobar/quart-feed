@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Table, Integer, ForeignKey
 
-from user.models import metadata as UserMetadata
+from user.models import metadata
 
 relationship_table = Table(
     "relationship",
-    UserMetadata,
+    metadata,
     Column("id", Integer, primary_key=True),
     Column("fm_user_id", Integer, ForeignKey("user.id")),
     Column("to_user_id", Integer, ForeignKey("user.id")),
