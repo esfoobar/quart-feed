@@ -22,6 +22,12 @@ block content %} {% include "navbar.html" %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
+
+      <input name="message" type="text"></input>
+      <button id="send">Send</button>
+      <ul></ul>
+      <script type="text/javascript" src="{{ url_for('static', filename='js/broadcast.js') }}"></script>
+  
     </div>
   </div>
 </div>
