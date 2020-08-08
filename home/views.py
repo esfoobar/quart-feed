@@ -11,6 +11,8 @@ from quart import (
 from typing import Union, TYPE_CHECKING
 import uuid
 
+from .sse import ServerSentEvent
+
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
@@ -24,3 +26,27 @@ async def init() -> Union[str, "Response"]:
     session["csrf_token"] = str(csrf_token)
 
     return await render_template("home/init.html", csrf_token=csrf_token)
+
+
+@home_app.route("/sse")
+async def sse():
+    async def send_events():
+        while True:
+            try:
+                # data = await queue.get()
+                # get data from database
+                event = ServerSentEvent(data)
+                yield event.encode()
+            except asyncio.CancelledError as error:
+                app.clients.remove(queue)
+
+    response = await make_response(
+        send_events(),
+        {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            "Transfer-Encoding": "chunked",
+        },
+    )
+    response.timeout = None
+    return response
