@@ -9,33 +9,34 @@ from quart import (
     flash,
     current_app,
     abort,
+    jsonify,
 )
 import uuid
-from typing import Union, TYPE_CHECKING
+from typing import Union, Tuple, TYPE_CHECKING
 from sqlalchemy import select
-
-if TYPE_CHECKING:
-    from quart.wrappers.response import Response
+from quart.wrappers.response import Response
 
 from post.models import post_table, like_table, feed_table
+from user.decorators import login_required
 
 post_app = Blueprint("post_app", __name__)
 
 
 @post_app.route("/post", methods=["POST"])
-async def post() -> Union[str, "Response"]:
+@login_required
+async def post() -> Tuple[Response, int]:
     error: bool = False
 
     if request.method == "POST":
-        form: dict = await request.form
-        post = form.get("post", "")
+        data = await request.get_json()
+        post = data.get("post", "")
 
         if not post or post == "":
             error = True
             await flash("Please enter a post text")
 
         if (
-            session.get("csrf_token") != form.get("csrf_token")
+            session.get("csrf_token") != data.get("csrf_token")
             and not current_app.testing
         ):
             error = True
@@ -44,9 +45,21 @@ async def post() -> Union[str, "Response"]:
         if not error:
             conn = current_app.sac
 
-            # check if the user exists
-            # user = await get_user_by_username(conn, form.get("username"))
-            # if not user:
-            #     error = "User not found"
+            import pdb
 
-    return redirect(url_for("home_app.init"))
+            pdb.set_trace()
+
+            # insert on post table
+            post_record = {
+                "uid": str(uuid.uuid4()),
+                "parent_post_id": None,
+                "body": post,
+                "user_id": session.get("user_id"),
+            }
+            stmt = post_table.insert().values(**post_record)
+            result = await conn.execute(stmt)
+            await conn.execute("commit")
+
+            # insert on feed table
+
+    return jsonify({"result": "ok"}), 200

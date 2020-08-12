@@ -7,11 +7,15 @@ from quart import (
     url_for,
     flash,
     abort,
+    make_response,
 )
 from typing import Union, TYPE_CHECKING
 import uuid
+import asyncio
+import random
 
-from .sse import ServerSentEvent
+from .models import ServerSentEvent
+from user.decorators import login_required
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -29,19 +33,27 @@ async def init() -> Union[str, "Response"]:
 
 
 @home_app.route("/sse")
+@login_required
 async def sse():
-    async def send_events():
+    username = session.get("username")
+
+    async def send_events(username):
         while True:
             try:
                 # data = await queue.get()
+
                 # get data from database
-                event = ServerSentEvent(data)
+                id = str(random.sample(range(1, 100), 1))
+                data = {"post_id": id, "message": f"Hello {username}"}
+                event = ServerSentEvent(data, event="new_like", id=id)
+                # print("event-sse:", event.encode())
                 yield event.encode()
+                await asyncio.sleep(10)
             except asyncio.CancelledError as error:
-                app.clients.remove(queue)
+                print("Exception:", error)
 
     response = await make_response(
-        send_events(),
+        send_events(username),
         {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
