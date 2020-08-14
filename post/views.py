@@ -14,9 +14,12 @@ from quart import (
 import uuid
 from typing import Union, Tuple, TYPE_CHECKING
 from sqlalchemy import select
-from quart.wrappers.response import Response
+
+if TYPE_CHECKING:
+    from quart.wrappers.response import Response
 
 from post.models import post_table, like_table, feed_table
+from relationship.models import get_user_followers
 from user.decorators import login_required
 
 post_app = Blueprint("post_app", __name__)
@@ -24,7 +27,7 @@ post_app = Blueprint("post_app", __name__)
 
 @post_app.route("/post", methods=["POST"])
 @login_required
-async def post() -> Tuple[Response, int]:
+async def post() -> Tuple["Response", int]:
     error: bool = False
 
     if request.method == "POST":
@@ -45,10 +48,6 @@ async def post() -> Tuple[Response, int]:
         if not error:
             conn = current_app.sac
 
-            import pdb
-
-            pdb.set_trace()
-
             # insert on post table
             post_record = {
                 "uid": str(uuid.uuid4()),
@@ -60,6 +59,13 @@ async def post() -> Tuple[Response, int]:
             result = await conn.execute(stmt)
             await conn.execute("commit")
 
+            # get all the followers, where to_user_id = session user id
+            followers = await get_user_followers(conn, session.get("user_id"))
+
             # insert on feed table
+            for follower in followers:
+                pass
+
+            # add it for the same user
 
     return jsonify({"result": "ok"}), 200
