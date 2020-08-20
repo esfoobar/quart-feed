@@ -58,6 +58,3 @@ feed_table = Table(
     Column("to_user_id", Integer, ForeignKey("user.id")),
     Column("created", DateTime(timezone=True), server_default=func.now()),
 )
-
-# usage:
-# connection.execute(t.insert(), {"value": MyEnum.two})

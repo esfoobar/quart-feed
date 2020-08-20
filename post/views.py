@@ -18,7 +18,7 @@ from sqlalchemy import select
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
-from post.models import post_table, like_table, feed_table
+from post.models import post_table, like_table, feed_table, ActionType
 from relationship.models import get_user_followers
 from user.decorators import login_required
 
@@ -55,17 +55,39 @@ async def post() -> Tuple["Response", int]:
                 "body": post,
                 "user_id": session.get("user_id"),
             }
+            import pdb
+
+            pdb.set_trace()
             stmt = post_table.insert().values(**post_record)
             result = await conn.execute(stmt)
             await conn.execute("commit")
+            post_record_id = result.lastrowid
 
             # get all the followers, where to_user_id = session user id
             followers = await get_user_followers(conn, session.get("user_id"))
 
             # insert on feed table
             for follower in followers:
-                pass
+                # insert on feed table for all followers
+                feed_record = {
+                    "post_id": post_record_id,
+                    "action": ActionType.new_post,
+                    "fm_user_id": session.get("user_id"),
+                    "to_user_id": follower["id"],
+                }
+                stmt_1 = feed_table.insert().values(**feed_record)
+                result = await conn.execute(stmt_1)
+                await conn.execute("commit")
 
             # add it for the same user
+            feed_record = {
+                "post_id": post_record_id,
+                "action": ActionType.new_post,
+                "fm_user_id": session.get("user_id"),
+                "to_user_id": session.get("user_id"),
+            }
+            stmt_2 = feed_table.insert().values(**feed_record)
+            result = await conn.execute(stmt_2)
+            await conn.execute("commit")
 
     return jsonify({"result": "ok"}), 200
