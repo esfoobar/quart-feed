@@ -24,7 +24,12 @@ post_table = Table(
     Column("body", String(280)),
     Column("user_id", Integer, ForeignKey("user.id")),
     Column("created", DateTime(timezone=True), server_default=func.now()),
-    Column("updated", DateTime(timezone=True), onupdate=func.now()),
+    Column(
+        "updated",
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    ),
 )
 
 like_table = Table(
@@ -57,4 +62,10 @@ feed_table = Table(
     Column("fm_user_id", Integer, ForeignKey("user.id")),
     Column("to_user_id", Integer, ForeignKey("user.id")),
     Column("created", DateTime(timezone=True), server_default=func.now()),
+    Column(
+        "updated",
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    ),
 )

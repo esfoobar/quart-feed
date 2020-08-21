@@ -8,14 +8,18 @@ from quart import (
     flash,
     abort,
     make_response,
+    current_app,
 )
 from typing import Union, TYPE_CHECKING
 import uuid
 import asyncio
 import random
+from sqlalchemy import select, desc
 
 from .models import ServerSentEvent
 from user.decorators import login_required
+from post.models import feed_table, post_table, ActionType
+from user.models import user_table
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -29,9 +33,37 @@ home_app = Blueprint("home_app", __name__)
 async def init() -> Union[str, "Response"]:
     csrf_token: uuid.UUID = uuid.uuid4()
     session["csrf_token"] = str(csrf_token)
+    conn = current_app.sac
 
     # get the last 10 posts in feed in reverse order and
     # pass to the context the last id as cursor_id
+    latest_posts_query = (
+        select(
+            [
+                post_table.c.uid,
+                post_table.c.body,
+                post_table.c.updated,
+                user_table.c.username,
+                user_table.c.image,
+            ]
+        )
+        .where(
+            (feed_table.c.post_id == post_table.c.id)
+            & (feed_table.c.to_user_id == session["user_id"])
+            & (feed_table.c.fm_user_id == user_table.c.id)
+            & (feed_table.c.action == ActionType.new_post)
+        )
+        .order_by(desc(feed_table.c.updated))
+        .limit(10)
+        .offset(0)
+    )
+    import pdb
+
+    pdb.set_trace()
+    result = await conn.execute(latest_posts_query)
+    for row in await result.fetchall():
+        # build the user image url context with image_url_from_image_ts
+        print(row)
 
     # on broadcast.js set that variable as a window object on namespace
 

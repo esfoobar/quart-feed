@@ -55,9 +55,6 @@ async def post() -> Tuple["Response", int]:
                 "body": post,
                 "user_id": session.get("user_id"),
             }
-            import pdb
-
-            pdb.set_trace()
             stmt = post_table.insert().values(**post_record)
             result = await conn.execute(stmt)
             await conn.execute("commit")
