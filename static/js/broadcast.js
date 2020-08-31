@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-  var es = new EventSource("/sse");
+  var cursorId = quartBook.cursorId;
+  var ssePath = "/sse?cursor_id=" + cursorId.toString();
+  var es = new EventSource(ssePath);
 
   es.onmessage = function (event) {
     var messages_dom = document.getElementById("posts");

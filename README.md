@@ -21,7 +21,7 @@ This is a boilerplate for a Quart app that can run as a pipenv, Heroku or Docker
 ## Using Docker
 
 - Add the path where this code lives on the Docker client
-- Run `docker-compose build`
+- Run `docker-compose up --build`
 - In a new terminal or tab run:
   - `docker-compose run --rm web pipenv run alembic upgrade head` to initialize migrations
 - Open `http://localhost:5000` on your browser

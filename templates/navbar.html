@@ -1,7 +1,7 @@
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="{{ url_for('home_app.init') }}">QuartFeed</a>
+            <a class="navbar-brand" href="{{ url_for("home_app.init") }}">QuartFeed</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
@@ -11,8 +11,8 @@
                       @{{ session.username }} <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('user_app.profile', username=session.username )}}">View profile</a></li>
-                        <li><a href="{{ url_for('user_app.profile_edit')}}">Edit profile</a></li>
+                        <li><a href="{{ url_for("user_app.profile", username=session.username ) }}">View profile</a></li>
+                        <li><a href="{{ url_for("user_app.profile_edit") }}">Edit profile</a></li>
                         <li><a href="#">Change password</a></li>
                     </ul>
                 </li>

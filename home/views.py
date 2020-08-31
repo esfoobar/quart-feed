@@ -15,11 +15,12 @@ import uuid
 import asyncio
 import random
 from sqlalchemy import select, desc
+import arrow
 
 from .models import ServerSentEvent
 from user.decorators import login_required
 from post.models import feed_table, post_table, ActionType
-from user.models import user_table
+from user.models import user_table, image_url_from_image_ts
 
 if TYPE_CHECKING:
     from quart.wrappers.response import Response
@@ -40,10 +41,12 @@ async def init() -> Union[str, "Response"]:
     latest_posts_query = (
         select(
             [
+                post_table.c.id,
                 post_table.c.uid,
                 post_table.c.body,
                 post_table.c.updated,
                 user_table.c.username,
+                user_table.c.id,
                 user_table.c.image,
             ]
         )
@@ -56,33 +59,47 @@ async def init() -> Union[str, "Response"]:
         .order_by(desc(feed_table.c.updated))
         .limit(10)
         .offset(0)
+        .apply_labels()
     )
-    import pdb
-
-    pdb.set_trace()
     result = await conn.execute(latest_posts_query)
+
+    posts: list = []
+    cursor_id: int = 0
+
     for row in await result.fetchall():
-        # build the user image url context with image_url_from_image_ts
-        print(row)
+        user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
+
+        post: dict = {
+            "id": row["post_id"],
+            "uid": row["post_uid"],
+            "body": row["post_body"],
+            "datetime": arrow.get(row["post_updated"]).humanize(),
+            "username": row["user_username"],
+            "user_image": user_images["image_url_lg"],
+        }
+        posts.append(post)
+
+        if cursor_id == 0:
+            cursor_id = row["post_id"]
 
     # on broadcast.js set that variable as a window object on namespace
 
     # then broadcast.js picks that up and sends to /sse as a param
 
-    return await render_template("home/init.html", csrf_token=csrf_token)
+    return await render_template(
+        "home/init.html", posts=posts, csrf_token=csrf_token, cursor_id=cursor_id
+    )
 
 
 @home_app.route("/sse")
 @login_required
 async def sse():
     username = session.get("username")
-    # cursor_id = request.values.get("cursor_id")
+    cursor_id = request.args.get("cursor_id")
 
     async def send_events(username):
         while True:
             try:
-                # set the last feed cursor_id from param
-
                 # get all the feed items greater than that cursor_id
 
                 # update the cursor_id

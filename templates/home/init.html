@@ -22,11 +22,31 @@ block content %} {% include "navbar.html" %}
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
       <button id="send" class="btn btn-primary">Post</button>
 
-      <div id="posts"></div>
+      <div id="posts">
+        {% for post in posts %}
+        <div class="media">
+          <div class="media-left">
+            <a href="{{ url_for("user_app.profile", username=post.username) }}">
+              <img class="media-object" src="{{ post.user_image }}" alt="{{ post.username }}">
+            </a>
+          </div>
+          <div class="media-body">
+            <div class="media-body-text">{{ post.body }}</div>
+            <div class="media-body-datetime">{{
+              post.datetime }}</div>
+          </div>
+        </div>
+        <hr />
+        {% endfor %}
+      </div>
 
+      <script type="text/javascript">
+        quartBook = {}
+        quartBook.cursorId = {{ cursor_id }}
+      </script>
       <script
         type="text/javascript"
-        src="{{ url_for('static', filename='js/broadcast.js') }}"
+        src="{{ url_for("static", filename="js/broadcast.js") }}"
       ></script>
     </div>
   </div>

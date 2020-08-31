@@ -36,20 +36,16 @@ async def get_user_by_username(conn: SAConnection, username: str) -> dict:
 
 def image_url_from_image_ts(user_id: int, user_image: str) -> dict:
     # compute the image url
-    image_dict:dict = []
+    image_dict: dict = {}
     if user_image:
         image_dict[
             "image_url_raw"
         ] = f"{IMAGES_URL}/user/{user_id}.{user_image}.raw.png"
         image_dict[
             "image_url_xlg"
-        ] = f"{IMAGES_URL}/user/{user_id}.{user_image]}.xlg.png"
-        image_dict[
-            "image_url_lg"
-        ] = f"{IMAGES_URL}/user/{user_id}.{user_image}.lg.png"
-        image_dict[
-            "image_url_sm"
-        ] = f"{IMAGES_URL}/user/{user_id}.{user_image}.sm.png"
+        ] = f"{IMAGES_URL}/user/{user_id}.{user_image}.xlg.png"
+        image_dict["image_url_lg"] = f"{IMAGES_URL}/user/{user_id}.{user_image}.lg.png"
+        image_dict["image_url_sm"] = f"{IMAGES_URL}/user/{user_id}.{user_image}.sm.png"
     else:
         image_dict["image_url_raw"] = f"{IMAGES_URL}/user/profile.raw.png"
         image_dict["image_url_xlg"] = f"{IMAGES_URL}/user/profile.xlg.png"
