@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 mypy = "==0.720"
+pylint = "*"
 
 [packages]
 quart = "==0.13"
@@ -19,4 +20,4 @@ wand = "==0.6.2"
 arrow = "==0.16.0"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
