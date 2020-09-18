@@ -108,9 +108,6 @@ async def get_latest_posts(
     if from_post_id > 0:
         latest_posts_query.where(feed_table.c.post_id > from_post_id)
 
-    import pdb
-
-    pdb.set_trace()
     result = await conn.execute(latest_posts_query)
     fetch_all = await result.fetchall()
     return fetch_all
