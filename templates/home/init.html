@@ -24,7 +24,7 @@ block content %} {% include "navbar.html" %}
 
       <div id="posts">
         {% for post in posts %}
-        <div class="media">
+        <div class="media" id="post-{{ post.id }}">
           <div class="media-left">
             <a href="{{ url_for("user_app.profile", username=post.username) }}">
               <img class="media-object" src="{{ post.user_image }}" alt="{{ post.username }}">

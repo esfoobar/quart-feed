@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     messages_dom.appendChild(message_dom);
   };
 
-  es.addEventListener("new_like", function (e) {
-    // console.log("Event: bye, data: ", e);
+  es.addEventListener("new_post", function (e) {
+    console.log("Event:", e.data);
   });
 
   document.getElementById("send").onclick = function () {

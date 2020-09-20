@@ -64,32 +64,37 @@ async def init() -> Union[str, "Response"]:
 @home_app.route("/sse")
 @login_required
 async def sse():
-    username = session.get("username")
+    user_id = session.get("user_id")
     cursor_id = int(request.args.get("cursor_id"))
     conn = current_app.sac
 
-    async def send_events(conn, username, cursor_id):
+    async def send_events(conn, user_id, cursor_id):
         while True:
             try:
                 # get all the feed items greater than that cursor_id
-                post_results = await get_latest_posts(
-                    conn, session["user_id"], num_posts=1, from_post_id=cursor_id
+                recent_posts = await get_latest_posts(
+                    conn, user_id, num_posts=1, from_post_id=cursor_id
                 )
-                # update the cursor_id
 
-                # get data from database
-                id = str(random.sample(range(1, 100), 1))
-                data = {"post_id": id, "message": f"Hello {username}"}
-                event = ServerSentEvent(data, event="new_like", id=id)
+                if len(recent_posts) > 0:
+                    # update the cursor_id
+                    cursor_id = recent_posts[0].post_id
 
-                # print("event-sse:", event.encode())
-                yield event.encode()
+                    # get data from database
+                    id = recent_posts[0].post_id
+                    data = {"post_id": id, "message": recent_posts[0].post_body}
+                    event = ServerSentEvent(data, event="new_post", id=id)
+
+                    yield event.encode()
+
+                # wait 10 seconds
                 await asyncio.sleep(10)
+
             except asyncio.CancelledError as error:
                 print("Exception:", error)
 
     response = await make_response(
-        send_events(conn, username, cursor_id),
+        send_events(conn, user_id, cursor_id),
         {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
