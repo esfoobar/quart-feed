@@ -1,6 +1,6 @@
-# Quart MySQL Boilerplate
+# Quart Feed
 
-This is a boilerplate for a Quart app that can run as a pipenv, Heroku or Docker application. Requires `python 3.7`.
+The FriendFeed clone using Quart.
 
 ## Local MySQL server
 

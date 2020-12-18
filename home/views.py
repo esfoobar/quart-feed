@@ -16,6 +16,7 @@ import asyncio
 import random
 from sqlalchemy import select, desc
 import arrow
+import json
 
 from .models import ServerSentEvent
 from user.decorators import login_required
@@ -83,7 +84,7 @@ async def sse():
                     # get data from database
                     id = recent_posts[0].post_id
                     data = {"post_id": id, "message": recent_posts[0].post_body}
-                    event = ServerSentEvent(data, event="new_post", id=id)
+                    event = ServerSentEvent(json.dumps(data), event="new_post", id=id)
 
                     yield event.encode()
 

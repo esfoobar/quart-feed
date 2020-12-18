@@ -132,7 +132,6 @@ async def get_latest_posts(
             .apply_labels()
         )
 
-    print("from_post_id", str(from_post_id))
     result = await conn.execute(latest_posts_query)
     fetch_all = await result.fetchall()
     return fetch_all

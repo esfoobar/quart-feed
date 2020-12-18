@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   es.addEventListener("new_post", function (e) {
-    console.log("Event:", json.parse(e.data));
+    console.log("Event:", JSON.parse(e.data));
   });
 
   document.getElementById("send").onclick = function () {
