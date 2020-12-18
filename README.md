@@ -9,14 +9,13 @@ The FriendFeed clone using Quart.
   - Create the counter database `CREATE DATABASE quartfeed;`
   - Create the counter user `CREATE USER 'quartfeed_user'@'%' IDENTIFIED BY 'quartfeed_password';`
   - Give privileges to counter user `GRANT ALL PRIVILEGES ON quartfeed.* TO 'quartfeed_user'@'%';` and `FLUSH PRIVILEGES;`
-- Install pipenv if you don't have it using `pip install pipenv`
-- Install the packages: `pipenv install`
-- Run the first migration with `pipenv run alembic upgrade head`
-  - Subsequent migrations after models changes can be run with `pipenv run alembic revision --autogenerate -m "added new table field"` with [some caveats](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#what-does-autogenerate-detect-and-what-does-it-not-detect).
-- Run `pipenv run quart run`
+- Install the packages: `python -m pipenv install`
+- Run the first migration with `python -m pipenv run alembic upgrade head`
+  - Subsequent migrations after models changes can be run with `python -m pipenv run alembic revision --autogenerate -m "added new table field"` with [some caveats](https://alembic.sqlalchemy.org/en/latest/autogenerate.html#what-does-autogenerate-detect-and-what-does-it-not-detect).
+- Run `python -m pipenv run quart run`
 - Open `http://localhost:5000` on your browser
-- To open a shell, just do `pipenv run quart shell`
-- Run tests by doing `pipenv run pytest`
+- To open a shell, just do `python -m pipenv run quart shell`
+- Run tests by doing `python -m pipenv run pytest`
 
 ## Using Docker
 
