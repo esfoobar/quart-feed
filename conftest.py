@@ -21,7 +21,6 @@ def event_loop(request):
 @pytest.mark.asyncio
 @pytest.fixture(scope="module")
 async def create_db(event_loop):
-    print("Creating db")
     db_name = os.environ["DATABASE_NAME"] + "_test"
     db_host = os.environ["DB_HOST"]
     db_root_password = os.environ["MYSQL_ROOT_PASSWORD"]
@@ -53,7 +52,6 @@ async def create_db(event_loop):
         "TESTING": True,
     }
 
-    print("Destroying db")
     engine = create_engine(db_uri)
     conn = engine.connect()
     conn.execute("DROP DATABASE " + db_name)
@@ -66,7 +64,6 @@ async def create_test_app(create_db):
     app = create_app(**create_db)
     await app.startup()
     yield app
-    print("closing")
     await app.shutdown()
 
 

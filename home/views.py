@@ -17,6 +17,7 @@ import random
 from sqlalchemy import select, desc
 import arrow
 import json
+import logging
 
 from .models import ServerSentEvent
 from user.decorators import login_required
@@ -92,7 +93,7 @@ async def sse():
                 await asyncio.sleep(10)
 
             except asyncio.CancelledError as error:
-                print("Exception:", error)
+                logging.error("Exception:", error)
 
     response = await make_response(
         send_events(conn, user_id, cursor_id),

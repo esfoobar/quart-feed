@@ -16,7 +16,6 @@ class ServerSentEvent:
         self.retry = retry
 
     def encode(self) -> bytes:
-        print("event", self.event, self.data)
         message = f"data: {self.data}"
         if self.event is not None:
             message = f"{message}\nevent: {self.event}"
