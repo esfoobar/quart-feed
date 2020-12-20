@@ -3,6 +3,26 @@ document.addEventListener("DOMContentLoaded", function () {
   var ssePath = "/sse?cursor_id=" + cursorId.toString();
   var es = new EventSource(ssePath);
 
+  postHtml = function(data) {
+    const HTMLmarkup = `
+    <div class="media" id="post-${ post_id }">
+      <div class="media-left">
+        <a href="${ profile_url }">
+          <img class="media-object" src="${ profile_user_image }" alt="${ username }">
+        </a>
+      </div>
+      <div class="media-body">
+        <div class="media-body-text">${ post.body }</div>
+        <div class="media-body-datetime">${
+          post_datetime }</div>
+      </div>
+    </div>
+    <hr />
+    `;
+
+    return HTMLmarkup;
+  }
+
   es.onmessage = function (event) {
     var messages_dom = document.getElementById("posts");
     var message_dom = document.createElement("li");
@@ -15,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   es.addEventListener("new_post", function (e) {
+    var messages_dom = document.getElementById("posts");
+    var message_dom = document.createElement("li");
     console.log("Event:", JSON.parse(e.data));
   });
 

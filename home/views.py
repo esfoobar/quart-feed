@@ -43,16 +43,7 @@ async def init() -> Union[str, "Response"]:
 
     post_results = await get_latest_posts(conn, session["user_id"])
     for row in post_results:
-        user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
-
-        post: dict = {
-            "id": row["post_id"],
-            "uid": row["post_uid"],
-            "body": row["post_body"],
-            "datetime": arrow.get(row["post_updated"]).humanize(),
-            "username": row["user_username"],
-            "user_image": user_images["image_url_lg"],
-        }
+        post = post_context(row)
         posts.append(post)
 
         if cursor_id == 0:
@@ -82,12 +73,13 @@ async def sse():
                     # update the cursor_id
                     cursor_id = recent_posts[0].post_id
 
-                    # get data from database
-                    id = recent_posts[0].post_id
-                    data = {"post_id": id, "messages": recent_posts[0].post_body}
-                    event = ServerSentEvent(json.dumps(data), event="new_post", id=id)
+                    for row in recent_posts:
+                        # get data from database
+                        event = ServerSentEvent(
+                            json.dumps(row), event="new_post", id=id
+                        )
 
-                    yield event.encode()
+                        yield event.encode()
 
                 # wait 10 seconds
                 await asyncio.sleep(10)
@@ -105,3 +97,18 @@ async def sse():
     )
     response.timeout = None
     return response
+
+
+def post_context(row) -> dict:
+    user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
+
+    post: dict = {
+        "id": row["post_id"],
+        "uid": row["post_uid"],
+        "body": row["post_body"],
+        "datetime": arrow.get(row["post_updated"]).humanize(),
+        "username": row["user_username"],
+        "user_image": user_images["image_url_lg"],
+    }
+
+    return post
