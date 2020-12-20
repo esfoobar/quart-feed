@@ -84,7 +84,7 @@ async def sse():
 
                     # get data from database
                     id = recent_posts[0].post_id
-                    data = {"post_id": id, "message": recent_posts[0].post_body}
+                    data = {"post_id": id, "messages": recent_posts[0].post_body}
                     event = ServerSentEvent(json.dumps(data), event="new_post", id=id)
 
                     yield event.encode()
