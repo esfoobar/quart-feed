@@ -47,7 +47,7 @@ async def init() -> Union[str, "Response"]:
         posts.append(post)
 
         if cursor_id == 0:
-            cursor_id = row["post_id"]
+            cursor_id = row["feed_id"]
 
     return await render_template(
         "home/init.html", posts=posts, csrf_token=csrf_token, cursor_id=cursor_id
@@ -66,26 +66,27 @@ async def sse():
             try:
                 # get all the feed items greater than that cursor_id
                 recent_posts = await get_latest_posts(
-                    conn, user_id, num_posts=1, from_post_id=cursor_id
+                    conn, user_id, from_post_id=cursor_id, num_posts=1
                 )
 
                 if len(recent_posts) > 0:
+                    row = recent_posts[0]
+
+                    event = ServerSentEvent(
+                        json.dumps(post_context(row)), event="new_post", id=id
+                    )
+
+                    yield event.encode()
+
                     # update the cursor_id
-                    cursor_id = recent_posts[0].post_id
-
-                    for row in recent_posts:
-                        # get data from database
-                        event = ServerSentEvent(
-                            json.dumps(post_context(row)), event="new_post", id=id
-                        )
-
-                        yield event.encode()
+                    cursor_id = row.feed_id
+                    print("user:" + str(user_id), "new cursor_id:" + str(cursor_id))
 
                 # wait 10 seconds
                 await asyncio.sleep(10)
 
             except asyncio.CancelledError as error:
-                logging.error("Exception:", error)
+                logging.error("Exception:" + str(error))
 
     response = await make_response(
         send_events(conn, user_id, cursor_id),
@@ -100,13 +101,14 @@ async def sse():
 
 
 def post_context(row) -> dict:
+    print("post", str(row))
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
 
     post: dict = {
-        "id": row["post_id"],
+        "id": row["feed_id"],
         "uid": row["post_uid"],
         "body": row["post_body"],
-        "datetime": arrow.get(row["post_updated"]).humanize(),
+        "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],
         "user_image": user_images["image_url_lg"],
     }

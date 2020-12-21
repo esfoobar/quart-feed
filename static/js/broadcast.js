@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
       <div class="media-body">
         <div class="media-body-text">${ data.body }</div>
-        <div class="media-body-datetime">${ data.datetime }</div>
+        <div class="media-body-datetime">${ data.datetime } - ${ data.id }</div>
       </div>
     </div>
     <hr />
