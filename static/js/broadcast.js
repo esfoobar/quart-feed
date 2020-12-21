@@ -5,16 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   postHtml = function(data) {
     const HTMLmarkup = `
-    <div class="media" id="post-${ post_id }">
+    <div class="media" id="post-${ data.id }">
       <div class="media-left">
-        <a href="${ profile_url }">
-          <img class="media-object" src="${ profile_user_image }" alt="${ username }">
+        <a href="${ data.username }">
+          <img class="media-object" src="${ data.user_image }" alt="${ data.username }">
         </a>
       </div>
       <div class="media-body">
-        <div class="media-body-text">${ post.body }</div>
-        <div class="media-body-datetime">${
-          post_datetime }</div>
+        <div class="media-body-text">${ data.body }</div>
+        <div class="media-body-datetime">${ data.datetime }</div>
       </div>
     </div>
     <hr />
@@ -23,9 +22,15 @@ document.addEventListener("DOMContentLoaded", function () {
     return HTMLmarkup;
   }
 
+  htmlToElements = function(html) {
+    var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.childNodes;    
+  }
+
   es.onmessage = function (event) {
     var messages_dom = document.getElementById("posts");
-    var message_dom = document.createElement("li");
+    var message_dom = document.createElement("text");
     var content_dom = document.createTextNode(
       "Received: " + event.data + ", Type:" + event.type
     );
@@ -36,8 +41,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   es.addEventListener("new_post", function (e) {
     var messages_dom = document.getElementById("posts");
-    var message_dom = document.createElement("li");
-    console.log("Event:", JSON.parse(e.data));
+    var message_dom = document.createElement("text");
+    message_dom.innerHTML = (postHtml(JSON.parse(e.data))).trim();
+    messages_dom.prepend(message_dom);
   });
 
   document.getElementById("send").onclick = function () {

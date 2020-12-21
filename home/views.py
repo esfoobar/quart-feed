@@ -76,7 +76,7 @@ async def sse():
                     for row in recent_posts:
                         # get data from database
                         event = ServerSentEvent(
-                            json.dumps(row), event="new_post", id=id
+                            json.dumps(post_context(row)), event="new_post", id=id
                         )
 
                         yield event.encode()

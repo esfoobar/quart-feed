@@ -1,6 +1,7 @@
-FROM python:3.7.3-slim
+FROM python:3.9-slim
 
 # Install ImageMagick for Wand
+RUN apt-get update && apt-get install -y
 RUN apt-get install -y \
     imagemagick \
     libmagickwand-dev
