@@ -97,7 +97,7 @@ async def get_latest_posts(
                 ]
             )
             .where(
-                (feed_table.c.post_id > from_post_id)
+                (feed_table.c.id > from_post_id)
                 & (feed_table.c.post_id == post_table.c.id)
                 & (feed_table.c.to_user_id == user_id)
                 & (feed_table.c.fm_user_id == user_table.c.id)
@@ -108,7 +108,6 @@ async def get_latest_posts(
             .offset(0)
             .apply_labels()
         )
-        print("query ht: " + str(from_post_id), "user:" + str(user_id))
     else:
         latest_posts_query = (
             select(
@@ -133,7 +132,6 @@ async def get_latest_posts(
             .offset(0)
             .apply_labels()
         )
-        print("query all for user:" + str(user_id))
 
     result = await conn.execute(latest_posts_query)
     fetch_all = await result.fetchall()

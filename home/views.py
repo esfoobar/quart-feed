@@ -79,11 +79,10 @@ async def sse():
                     yield event.encode()
 
                     # update the cursor_id
-                    cursor_id = row.feed_id
-                    print("user:" + str(user_id), "new cursor_id:" + str(cursor_id))
+                    cursor_id = row["feed_id"]
 
                 # wait 10 seconds
-                await asyncio.sleep(10)
+                await asyncio.sleep(1)
 
             except asyncio.CancelledError as error:
                 logging.error("Exception:" + str(error))
@@ -101,7 +100,6 @@ async def sse():
 
 
 def post_context(row) -> dict:
-    print("post", str(row))
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
 
     post: dict = {
