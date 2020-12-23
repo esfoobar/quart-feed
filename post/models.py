@@ -86,10 +86,10 @@ async def get_latest_posts(
         latest_posts_query = (
             select(
                 [
-                    post_table.c.id,
+                    feed_table.c.id,
                     post_table.c.uid,
                     post_table.c.body,
-                    post_table.c.updated,
+                    feed_table.c.updated,
                     user_table.c.username,
                     user_table.c.id,
                     user_table.c.image,
@@ -100,7 +100,7 @@ async def get_latest_posts(
                 & (feed_table.c.to_user_id == user_id)
                 & (feed_table.c.fm_user_id == user_table.c.id)
                 & (feed_table.c.action == ActionType.new_post)
-                & (feed_table.c.post_id > from_post_id)
+                & (feed_table.c.id > from_post_id)
             )
             .order_by(desc(feed_table.c.updated))
             .limit(num_posts)
@@ -111,10 +111,10 @@ async def get_latest_posts(
         latest_posts_query = (
             select(
                 [
-                    post_table.c.id,
+                    feed_table.c.id,
                     post_table.c.uid,
                     post_table.c.body,
-                    post_table.c.updated,
+                    feed_table.c.updated,
                     user_table.c.username,
                     user_table.c.id,
                     user_table.c.image,

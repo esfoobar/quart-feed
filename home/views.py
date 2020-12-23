@@ -44,19 +44,18 @@ async def init() -> Union[str, "Response"]:
     post_results = await get_latest_posts(conn, session["user_id"])
     for row in post_results:
         user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
-
         post: dict = {
-            "id": row["post_id"],
+            "id": row["feed_id"],
             "uid": row["post_uid"],
             "body": row["post_body"],
-            "datetime": arrow.get(row["post_updated"]).humanize(),
+            "datetime": arrow.get(row["feed_updated"]).humanize(),
             "username": row["user_username"],
             "user_image": user_images["image_url_lg"],
         }
         posts.append(post)
 
         if cursor_id == 0:
-            cursor_id = row["post_id"]
+            cursor_id = row["feed_id"]
 
     return await render_template(
         "home/init.html", posts=posts, csrf_token=csrf_token, cursor_id=cursor_id
@@ -80,11 +79,15 @@ async def sse():
 
                 if len(recent_posts) > 0:
                     # update the cursor_id
-                    cursor_id = recent_posts[0].post_id
+                    feed_id = recent_posts[0].feed_id
+                    cursor_id = feed_id
+                    print("cursor_id", cursor_id)
 
-                    # get data from database
-                    id = recent_posts[0].post_id
-                    data = {"post_id": id, "messages": recent_posts[0].post_body}
+                    # send data to sse
+                    data = {
+                        "post_id": feed_id,
+                        "messages": recent_posts[0].post_body,
+                    }
                     event = ServerSentEvent(json.dumps(data), event="new_post", id=id)
 
                     yield event.encode()
