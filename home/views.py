@@ -33,7 +33,7 @@ home_app = Blueprint("home_app", __name__)
 
 @home_app.route("/", methods=["GET"])
 @login_required
-async def init() -> Union[str, "Response"]:
+async def init() -> str:
     csrf_token: uuid.UUID = uuid.uuid4()
     session["csrf_token"] = str(csrf_token)
     conn = current_app.sac
@@ -56,7 +56,7 @@ async def init() -> Union[str, "Response"]:
 
 @home_app.route("/sse")
 @login_required
-async def sse():
+async def sse() -> "Response":
     user_id = session.get("user_id")
     cursor_id = int(request.args.get("cursor_id"))
     conn = current_app.sac
