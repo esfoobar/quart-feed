@@ -1,11 +1,13 @@
 from quart import Quart
 from aiomysql.sa import create_engine
+from asyncio import get_event_loop
 
 from db import sa_connection
 
 
 def create_app(**config_overrides):
     app = Quart(__name__)
+    app.config["SQLALCHEMY_POOL_SIZE"] = 20
 
     # Load config
     app.config.from_pyfile("settings.py")
@@ -27,7 +29,7 @@ def create_app(**config_overrides):
 
     @app.before_serving
     async def create_db_conn():
-        app.sac = await sa_connection()
+        app.sac = await sa_connection(get_event_loop())
 
     @app.after_serving
     async def close_db_conn():
