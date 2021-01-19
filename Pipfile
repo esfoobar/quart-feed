@@ -8,9 +8,9 @@ mypy = "==0.720"
 pylint = "*"
 
 [packages]
-quart = "==0.13"
+quart = "==0.14.1"
 python-dotenv = "==0.10.1"
-aiomysql = "==0.0.20"
+aiomysql = "==0.0.21"
 sqlalchemy = "==1.3"
 alembic = "==1.0.10"
 pytest = "==4.5.0"
@@ -20,4 +20,4 @@ wand = "==0.6.2"
 arrow = "==0.16.0"
 
 [requires]
-python_version = "3.9"
+python_version = "3.8"

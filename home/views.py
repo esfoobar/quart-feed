@@ -108,6 +108,7 @@ def post_context(row) -> dict:
         "body": row["post_body"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],
+        "user_profile_url": f"/user/{row['user_username']}",
         "user_image": user_images["image_url_lg"],
     }
 

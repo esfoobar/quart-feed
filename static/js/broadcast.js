@@ -7,11 +7,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const HTMLmarkup = `
     <div class="media" id="post-${ data.id }">
       <div class="media-left">
-        <a href="${ data.username }">
+        <a href="${ data.user_profile_url }">
           <img class="media-object" src="${ data.user_image }" alt="${ data.username }">
         </a>
       </div>
       <div class="media-body">
+        <a href="${ data.user_profile_url }">
+          <div class="media-username">@${ data.username }</div>
+        </a>      
         <div class="media-body-text">${ data.body }</div>
         <div class="media-body-datetime">${ data.datetime } - ${ data.id }</div>
       </div>

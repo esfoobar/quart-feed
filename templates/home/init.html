@@ -31,6 +31,9 @@ block content %} {% include "navbar.html" %}
             </a>
           </div>
           <div class="media-body">
+            <a href="{{ url_for("user_app.profile", username=post.username) }}">
+              <div class="media-username">@{{ post.username }}</div>
+            </a>
             <div class="media-body-text">{{ post.body }}</div>
             <div class="media-body-datetime">{{
               post.datetime }} - {{ post.id }}</div>
