@@ -33,7 +33,7 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
 
     # check that the user was created on the database itself
     async with create_test_app.app_context():
-        conn = current_app.sac
+        conn = current_app.dbc
         username_query = select([user_table.c.username])
         result = await conn.execute(username_query)
         result_row = await result.first()

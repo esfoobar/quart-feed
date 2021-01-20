@@ -1,27 +1,13 @@
-from aiomysql.sa import create_engine
+from databases import Database
 from quart import current_app
-import aiomysql
+import sqlalchemy
+
+metadata = sqlalchemy.MetaData()
 
 
-async def sa_connection(loop):
-    engine = await create_engine(
-        user=current_app.config["DB_USERNAME"],
-        password=current_app.config["DB_PASSWORD"],
-        host=current_app.config["DB_HOST"],
-        db=current_app.config["DATABASE_NAME"],
-        minsize=10,
+async def db_connection():
+    database = Database(
+        f"mysql://{current_app.config['DB_USERNAME']}:{current_app.config['DB_PASSWORD']}@{current_app.config['DB_HOST']}/{current_app.config['DATABASE_NAME']}?min_size=5&max_size=20"
     )
-    conn = await engine.acquire()
 
-    # pool = await aiomysql.create_pool(
-    #     host=current_app.config["DB_HOST"],
-    #     port=3306,
-    #     user=current_app.config["DB_USERNAME"],
-    #     password=current_app.config["DB_PASSWORD"],
-    #     db=current_app.config["DATABASE_NAME"],
-    #     loop=loop,
-    # )
-    # conn2 = await pool.acquire()
-    # breakpoint()
-
-    return conn
+    return database

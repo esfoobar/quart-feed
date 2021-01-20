@@ -1,8 +1,6 @@
 from quart import Quart
-from aiomysql.sa import create_engine
-from asyncio import get_event_loop
 
-from db import sa_connection
+from db import db_connection
 
 
 def create_app(**config_overrides):
@@ -29,10 +27,12 @@ def create_app(**config_overrides):
 
     @app.before_serving
     async def create_db_conn():
-        app.sac = await sa_connection(get_event_loop())
+        database = await db_connection()
+        await database.connect()
+        app.dbc = database
 
     @app.after_serving
     async def close_db_conn():
-        await app.sac.close()
+        await app.dbc.disconnect()
 
     return app

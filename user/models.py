@@ -2,8 +2,8 @@ from sqlalchemy import Column, Table, Integer, String, MetaData
 from aiomysql.sa.connection import SAConnection
 
 from settings import IMAGES_URL
+from db import metadata
 
-metadata = MetaData()
 
 user_table = Table(
     "user",
@@ -16,9 +16,8 @@ user_table = Table(
 
 
 async def get_user_by_username(conn: SAConnection, username: str) -> dict:
-    stmt = user_table.select().where(user_table.c.username == username)
-    result = await conn.execute(stmt)
-    user_row = await result.fetchone()
+    user_query = user_table.select().where(user_table.c.username == username)
+    user_row = await conn.fetch_one(query=user_query)
 
     if user_row:
         user_dict = dict(user_row)

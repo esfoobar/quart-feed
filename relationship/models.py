@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Table, Integer, ForeignKey, select
 from typing import TYPE_CHECKING, List
 
-from user.models import metadata, user_table
+from user.models import user_table
+from db import metadata
 
 if TYPE_CHECKING:
     from aiomysql.sa.connection import SAConnection
@@ -19,12 +20,11 @@ relationship_table = Table(
 async def existing_relationship(
     conn: "SAConnection", fm_user_id: int, to_user_id: int
 ) -> "RowProxy":
-    stmt = relationship_table.select().where(
+    rel_query = relationship_table.select().where(
         (relationship_table.c.fm_user_id == fm_user_id)
         & (relationship_table.c.to_user_id == to_user_id)
     )
-    result = await conn.execute(stmt)
-    record = await result.fetchone()
+    record = await conn.fetch_one(query=rel_query)
     return record
 
 
@@ -33,11 +33,9 @@ async def get_user_followers(conn: "SAConnection", to_user_id: int) -> List["Row
         (relationship_table.c.fm_user_id == user_table.c.id)
         & (relationship_table.c.to_user_id == to_user_id)
     )
-    result = await conn.execute(followers_query)
 
     followers: list = []
-    for row in await result.fetchall():
+    async for row in conn.iterate(query=followers_query):
         followers.append(row)
 
     return followers
-

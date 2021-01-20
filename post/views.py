@@ -46,7 +46,7 @@ async def post() -> Tuple["Response", int]:
             await flash("Invalid POST contents")
 
         if not error:
-            conn = current_app.sac
+            conn = current_app.dbc
 
             # insert on post table
             post_record = {

@@ -53,7 +53,7 @@ async def register() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        conn = current_app.sac
+        conn = current_app.dbc
 
         # check if the user exists
         if not error:
@@ -106,7 +106,7 @@ async def login() -> Union[str, "Response"]:
         ):
             error = "Invalid POST contents"
 
-        conn = current_app.sac
+        conn = current_app.dbc
 
         # check if the user exists
         user = await get_user_by_username(conn, form.get("username"))
@@ -153,7 +153,7 @@ async def profile_edit() -> Union[str, "Response"]:
     csrf_token: uuid.UUID = uuid.uuid4()
 
     # grab the user's details
-    conn = current_app.sac
+    conn = current_app.dbc
     profile_user = await get_user_by_username(conn, session["username"])
 
     if request.method == "GET":
@@ -238,7 +238,7 @@ async def profile_edit() -> Union[str, "Response"]:
 @user_app.route("/user/<username>")
 @login_required
 async def profile(username) -> Union[str, "Response"]:
-    conn = current_app.sac
+    conn = current_app.dbc
 
     # fetch the user
     user = await get_user_by_username(conn, username)
@@ -266,11 +266,10 @@ async def profile(username) -> Union[str, "Response"]:
 @user_app.route("/user/list")
 @login_required
 async def user_list() -> Union[str, "Response"]:
-    conn = current_app.sac
+    conn = current_app.dbc
     username_query = select([user_table.c.username])
-    result = await conn.execute(username_query)
 
-    for row in await result.fetchall():
+    async for row in conn.iterate(query=username_query):
         print(row)
 
     return "user list"

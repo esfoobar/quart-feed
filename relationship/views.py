@@ -25,7 +25,7 @@ relationship_app = Blueprint("relationship_app", __name__)
 @relationship_app.route("/add_friend/<username>", methods=["GET"])
 @login_required
 async def add_friend(username) -> Union[str, "Response"]:
-    conn = current_app.sac
+    conn = current_app.dbc
     referrer = request.referrer
     logged_user_id = session.get("user_id")
 
@@ -51,7 +51,7 @@ async def add_friend(username) -> Union[str, "Response"]:
 @relationship_app.route("/remove_friend/<username>", methods=["GET"])
 @login_required
 async def remove_friend(username) -> Union[str, "Response"]:
-    conn = current_app.sac
+    conn = current_app.dbc
     referrer = request.referrer
     logged_user_id = session.get("user_id")
 
