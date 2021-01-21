@@ -62,9 +62,8 @@ async def create_db(event_loop):
 @pytest.fixture(scope="module")
 async def create_test_app(create_db):
     app = create_app(**create_db)
-    await app.startup()
-    yield app
-    await app.shutdown()
+    async with app.test_app():
+        yield app
 
 
 @pytest.fixture

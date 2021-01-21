@@ -25,11 +25,11 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from user.models import metadata
+from db import metadata
 from relationship.models import relationship_table
 from post.models import post_table, like_table, feed_table
 
-target_metadata = [metadata]
+target_metadata = metadata
 
 section = config.config_ini_section
 config.set_section_option(section, "DB_USERNAME", os.environ.get("DB_USERNAME"))
