@@ -55,10 +55,9 @@ async def post() -> Tuple["Response", int]:
                 "body": post,
                 "user_id": session.get("user_id"),
             }
-            stmt = post_table.insert().values(**post_record)
-            result = await conn.execute(stmt)
-            await conn.execute("commit")
-            post_record_id = result.lastrowid
+            post_query = post_table.insert().values(**post_record)
+            result = await conn.execute(query=post_query)
+            post_record_id = result
 
             # get all the followers, where to_user_id = session user id
             followers = await get_user_followers(conn, session.get("user_id"))
@@ -72,9 +71,8 @@ async def post() -> Tuple["Response", int]:
                     "fm_user_id": session.get("user_id"),
                     "to_user_id": follower["id"],
                 }
-                stmt_1 = feed_table.insert().values(**feed_record)
-                result = await conn.execute(stmt_1)
-                await conn.execute("commit")
+                follower_post_query = feed_table.insert().values(**feed_record)
+                await conn.execute(query=follower_post_query)
 
             # add it for the same user
             feed_record = {
@@ -83,8 +81,7 @@ async def post() -> Tuple["Response", int]:
                 "fm_user_id": session.get("user_id"),
                 "to_user_id": session.get("user_id"),
             }
-            stmt_2 = feed_table.insert().values(**feed_record)
-            result = await conn.execute(stmt_2)
-            await conn.execute("commit")
+            self_post_query = feed_table.insert().values(**feed_record)
+            await conn.execute(query=self_post_query)
 
     return jsonify({"result": "ok"}), 200

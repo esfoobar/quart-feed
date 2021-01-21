@@ -2,7 +2,8 @@ import pytest
 from quart import current_app, session
 from sqlalchemy import create_engine, select
 
-from user.models import user_table, metadata as UserMetadata
+from user.models import user_table
+from db import metadata as UserMetadata
 
 
 def user_dict():
@@ -35,8 +36,7 @@ async def test_succesful_registration(create_test_client, create_all, create_tes
     async with create_test_app.app_context():
         conn = current_app.dbc
         username_query = select([user_table.c.username])
-        result = await conn.execute(username_query)
-        result_row = await result.first()
+        result_row = await conn.fetch_one(query=username_query)
         username = result_row[user_table.c.username]
         assert username == user_dict()["username"]
 

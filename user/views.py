@@ -67,9 +67,8 @@ async def register() -> Union[str, "Response"]:
                 del session["csrf_token"]
 
             hash: str = pbkdf2_sha256.hash(password)
-            stmt = user_table.insert().values(username=username, password=hash)
-            result = await conn.execute(stmt)
-            await conn.execute("commit")
+            user_insert = user_table.insert().values(username=username, password=hash)
+            await conn.execute(query=user_insert)
             await flash("You have been registered, please login")
             return redirect(url_for(".login"))
         else:
@@ -212,11 +211,10 @@ async def profile_edit() -> Union[str, "Response"]:
             del profile_user["image_url_lg"]
             del profile_user["image_url_sm"]
 
-            stmt = user_table.update(user_table.c.id == profile_user["id"]).values(
-                profile_user
-            )
-            result = await conn.execute(stmt)
-            await conn.execute("commit")
+            user_update = user_table.update(
+                user_table.c.id == profile_user["id"]
+            ).values(profile_user)
+            await conn.execute(query=user_update)
 
             # update session with new username
             session["username"] = form_username
