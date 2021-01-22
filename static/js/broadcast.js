@@ -15,8 +15,20 @@ document.addEventListener("DOMContentLoaded", function () {
         <a href="${ data.user_profile_url }">
           <div class="media-username">@${ data.username }</div>
         </a>      
-        <div class="media-body-text">${ data.body }</div>
-        <div class="media-body-datetime">${ data.datetime } - ${ data.id }</div>
+        <div class="media-body-text" id="post-text-${ data.id }">${ data.body }</div>
+        <div class="media-body-datetime">
+          <span id="post-datetime-${ data.id }">${ data.datetime }</span>&nbsp;-&nbsp;
+          <a class="post-comment-link" data-post-id="${ data.id }" href="#">Comment</a>
+        </div>
+        <div class="media-body-comment-entry" id="post-${ data.id }-comment" style="display: none;">
+          <textarea
+            name="post-comment"
+            class="form-control"
+            id="post-${ data.id }-comment-text"
+            rows="3"
+            placeholder="Add your comment"></textarea>
+          <button data-post-id="${ data.id }" class="btn btn-primary post-comment-btn">Post</button>
+        </div>
       </div>
     </div>
     <hr />
@@ -49,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     messages_dom.prepend(message_dom);
   });
 
-  document.getElementById("send").onclick = function () {
+  document.getElementById("post").onclick = function () {
     fetch("/post", {
       method: "POST",
       headers: {
@@ -63,4 +75,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementsByName("post")[0].value = "";
   };
+
+  document.addEventListener('click',function(e){
+    if (e.target && e.target.classList.contains("post-comment-link")){
+      
+      var postComment = document.getElementById("post-" + postCommentId + "-comment");
+      if (postComment.style.display === "none") {
+        postComment.style.display = "block";
+        postComment.focus();
+      } else {
+        postComment.style.display = "none";
+      }
+      e.preventDefault();
+     }
+
+     if (e.target && e.target.classList.contains("post-comment-btn")){
+      var postCommentId = e.target.dataset.postId;
+      var postCommentText = document.getElementById("post-" + postCommentId + "-comment-text");
+      console.log(postCommentText)
+      e.preventDefault();
+ }
+ });
 });

@@ -20,7 +20,7 @@ block content %} {% include "navbar.html" %}
         ></textarea>
       </div>
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
-      <button id="send" class="btn btn-primary">Post</button>
+      <button id="post" class="btn btn-primary">Post</button>
 
       <div id="posts">
         {% for post in posts %}
@@ -34,9 +34,20 @@ block content %} {% include "navbar.html" %}
             <a href="{{ url_for("user_app.profile", username=post.username) }}">
               <div class="media-username">@{{ post.username }}</div>
             </a>
-            <div class="media-body-text">{{ post.body }}</div>
-            <div class="media-body-datetime">{{
-              post.datetime }} - {{ post.id }}</div>
+            <div class="media-body-text" id="post-text-{{ post.id }}">{{ post.body }}</div>
+            <div class="media-body-datetime">
+              <span id="post-datetime-{{ post.id }}">{{ post.datetime }}</span>&nbsp;-&nbsp;
+              <a class="post-comment-link" data-post-id="{{ post.id }}" href="#">Comment</a>
+            </div>
+            <div class="media-body-comment-entry" id="post-{{ post.id }}-comment" style="display: none">
+              <textarea
+                name="post-comment"
+                class="form-control"
+                id="post-{{ post.id }}-comment-text"
+                rows="3"
+                placeholder="Add your comment"></textarea>
+              <button data-post-id="{{ post.id }}" class="btn btn-primary post-comment-btn">Post</button>
+            </div>            
           </div>
         </div>
         <hr />

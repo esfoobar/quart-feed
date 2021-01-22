@@ -78,7 +78,11 @@ feed_table = Table(
 
 
 async def get_latest_posts(
-    conn: "SAConnection", user_id: int, num_posts: int = 10, from_post_id: int = 0
+    conn: "SAConnection",
+    user_id: int,
+    action_type: ActionType = ActionType.new_post,
+    num_posts: int = 10,
+    from_post_id: int = 0,
 ):
     # get the last 10 posts in feed in reverse order and
     # pass to the context the last id as cursor_id
@@ -101,7 +105,7 @@ async def get_latest_posts(
                 & (feed_table.c.post_id == post_table.c.id)
                 & (feed_table.c.to_user_id == user_id)
                 & (feed_table.c.fm_user_id == user_table.c.id)
-                & (feed_table.c.action == ActionType.new_post)
+                & (feed_table.c.action == action_type)
             )
             .order_by(desc(feed_table.c.updated))
             .limit(num_posts)
