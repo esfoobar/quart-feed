@@ -23,11 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="media-body-comment-entry" id="post-${ data.id }-comment" style="display: none;">
           <textarea
             name="post-comment"
-            class="form-control"
-            id="post-${ data.id }-comment-text"
+            class="form-control"            
             rows="3"
             placeholder="Add your comment"></textarea>
-          <button data-post-id="${ data.id }" class="btn btn-primary post-comment-btn">Post</button>
+          <button data-post-id="${ data.id }" data-parent-post-id="${ post.parent_post_id }" class="btn btn-primary post-comment-btn">Post</button>
         </div>
       </div>
     </div>
@@ -78,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener('click',function(e){
     if (e.target && e.target.classList.contains("post-comment-link")){
-      
+      var postCommentId = e.target.dataset.postId;
       var postComment = document.getElementById("post-" + postCommentId + "-comment");
       if (postComment.style.display === "none") {
         postComment.style.display = "block";
@@ -91,8 +90,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
      if (e.target && e.target.classList.contains("post-comment-btn")){
       var postCommentId = e.target.dataset.postId;
-      var postCommentText = document.getElementById("post-" + postCommentId + "-comment-text");
-      console.log(postCommentText)
+      var parentPostId = e.target.dataset.parentPostId;
+      var postCommentTextElement = document.getElementById("post-" + postCommentId + "-comment-text");
+      var postCommentText = postCommentTextElement.value;
+
+      fetch("/comment", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          parent_post_id: parentPostId,
+          comment: postCommentText,
+          csrf_token: document.getElementsByName("csrf_token")[0].value,
+        }),
+      });
+
+      postCommentTextElement.value = "";     
       e.preventDefault();
  }
  });

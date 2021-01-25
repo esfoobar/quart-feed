@@ -101,10 +101,9 @@ async def sse() -> "Response":
 
 def post_context(row) -> dict:
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
-
     post: dict = {
         "id": row["feed_id"],
-        "uid": row["post_uid"],
+        "parent_post_id": row["feed_post_id"],
         "body": row["post_body"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],

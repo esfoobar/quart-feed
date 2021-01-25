@@ -46,7 +46,7 @@ block content %} {% include "navbar.html" %}
                 id="post-{{ post.id }}-comment-text"
                 rows="3"
                 placeholder="Add your comment"></textarea>
-              <button data-post-id="{{ post.id }}" class="btn btn-primary post-comment-btn">Post</button>
+              <button data-post-id="{{ post.id }}" data-parent-post-id="{{ post.parent_post_id }}" class="btn btn-primary post-comment-btn">Post</button>
             </div>            
           </div>
         </div>

@@ -92,6 +92,7 @@ async def get_latest_posts(
             select(
                 [
                     feed_table.c.id,
+                    feed_table.c.post_id,
                     post_table.c.uid,
                     post_table.c.body,
                     feed_table.c.updated,
@@ -117,6 +118,7 @@ async def get_latest_posts(
             select(
                 [
                     feed_table.c.id,
+                    feed_table.c.post_id,
                     post_table.c.uid,
                     post_table.c.body,
                     feed_table.c.updated,
