@@ -21,7 +21,13 @@ import logging
 
 from .models import ServerSentEvent
 from user.decorators import login_required
-from post.models import feed_table, post_table, ActionType, get_latest_posts
+from post.models import (
+    feed_table,
+    post_table,
+    ActionType,
+    get_latest_posts,
+    get_post_comments,
+)
 from user.models import user_table, image_url_from_image_ts
 
 if TYPE_CHECKING:
@@ -43,7 +49,16 @@ async def init() -> str:
 
     post_results = await get_latest_posts(conn, session["user_id"])
     for row in post_results:
+        # get post data
         post = post_context(row)
+
+        # get comments
+        comments = await get_post_comments(conn, post["id"])
+
+        post["comments"] = []
+        for comment in comments:
+            post["comments"].append(comment_context(comment))
+
         posts.append(post)
 
         if cursor_id == 0:
@@ -102,8 +117,8 @@ async def sse() -> "Response":
 def post_context(row) -> dict:
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
     post: dict = {
-        "id": row["feed_id"],
-        "parent_post_id": row["feed_post_id"],
+        "feed_uid": row["feed_uid"],
+        "post_uid": row["post_uid"],
         "body": row["post_body"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],
@@ -112,3 +127,13 @@ def post_context(row) -> dict:
     }
 
     return post
+
+
+def comment_context(row) -> dict:
+    comment: dict = {
+        "uid": row["post_uid"],
+        "body": row["post_body"],
+        "username": row["user_username"],
+    }
+
+    return comment

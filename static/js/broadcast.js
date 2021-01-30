@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   postHtml = function(data) {
     const HTMLmarkup = `
-    <div class="media" id="post-${ data.id }">
+    <div class="media" id="post-${ data.uid }">
       <div class="media-left">
         <a href="${ data.user_profile_url }">
           <img class="media-object" src="${ data.user_image }" alt="${ data.username }">
@@ -15,18 +15,18 @@ document.addEventListener("DOMContentLoaded", function () {
         <a href="${ data.user_profile_url }">
           <div class="media-username">@${ data.username }</div>
         </a>      
-        <div class="media-body-text" id="post-text-${ data.id }">${ data.body }</div>
+        <div class="media-body-text" id="post-text-${ data.uid }">${ data.body }</div>
         <div class="media-body-datetime">
-          <span id="post-datetime-${ data.id }">${ data.datetime }</span>&nbsp;-&nbsp;
-          <a class="post-comment-link" data-post-id="${ data.id }" href="#">Comment</a>
+          <span id="post-datetime-${ data.uid }">${ data.datetime }</span>&nbsp;-&nbsp;
+          <a class="post-comment-link" data-post-id="${ data.uid }" href="#">Comment</a>
         </div>
-        <div class="media-body-comment-entry" id="post-${ data.id }-comment" style="display: none;">
+        <div class="media-body-comment-entry" id="post-${ datau.id }-comment" style="display: none;">
           <textarea
             name="post-comment"
             class="form-control"            
             rows="3"
             placeholder="Add your comment"></textarea>
-          <button data-post-id="${ data.id }" data-parent-post-id="${ post.parent_post_id }" class="btn btn-primary post-comment-btn">Post</button>
+          <button data-post-id="${ data.uid }" data-parent-post-id="${ post.origin_post_id }" class="btn btn-primary post-comment-btn">Post</button>
         </div>
       </div>
     </div>
@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener('click',function(e){
     if (e.target && e.target.classList.contains("post-comment-link")){
-      var postCommentId = e.target.dataset.postId;
-      var postComment = document.getElementById("post-" + postCommentId + "-comment");
+      var postCommentUid = e.target.dataset.postUid;
+      var postComment = document.getElementById("post-" + postCommentUid + "-comment");
       if (postComment.style.display === "none") {
         postComment.style.display = "block";
         postComment.focus();
@@ -89,9 +89,9 @@ document.addEventListener("DOMContentLoaded", function () {
      }
 
      if (e.target && e.target.classList.contains("post-comment-btn")){
-      var postCommentId = e.target.dataset.postId;
-      var parentPostId = e.target.dataset.parentPostId;
-      var postCommentTextElement = document.getElementById("post-" + postCommentId + "-comment-text");
+      var postCommentUid = e.target.dataset.postUid;
+      var originPostId = e.target.dataset.originPostId;
+      var postCommentTextElement = document.getElementById("post-" + originPostId + "-comment-text");
       var postCommentText = postCommentTextElement.value;
 
       fetch("/comment", {
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          parent_post_id: parentPostId,
+          origin_post_id: originPostId,
           comment: postCommentText,
           csrf_token: document.getElementsByName("csrf_token")[0].value,
         }),

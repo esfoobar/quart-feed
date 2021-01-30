@@ -42,6 +42,7 @@ like_table = Table(
     "like",
     metadata,
     Column("id", Integer, primary_key=True),
+    Column("uid", String(36), index=True, unique=True),
     Column("parent_post_id", Integer, ForeignKey("post.id")),
     Column("user_id", Integer, ForeignKey("user.id")),
     Column("created", DateTime(timezone=True), server_default=func.now()),
@@ -63,6 +64,7 @@ feed_table = Table(
     "feed",
     metadata,
     Column("id", Integer, primary_key=True),
+    Column("uid", String(36), index=True, unique=True),
     Column("post_id", Integer, ForeignKey("post.id")),
     Column("action", Enum(ActionType)),
     Column("fm_user_id", Integer, ForeignKey("user.id")),
@@ -91,8 +93,7 @@ async def get_latest_posts(
         latest_posts_query = (
             select(
                 [
-                    feed_table.c.id,
-                    feed_table.c.post_id,
+                    feed_table.c.uid,
                     post_table.c.uid,
                     post_table.c.body,
                     feed_table.c.updated,
@@ -117,8 +118,7 @@ async def get_latest_posts(
         latest_posts_query = (
             select(
                 [
-                    feed_table.c.id,
-                    feed_table.c.post_id,
+                    feed_table.c.uid,
                     post_table.c.uid,
                     post_table.c.body,
                     feed_table.c.updated,
@@ -140,4 +140,47 @@ async def get_latest_posts(
         )
 
     fetch_all = await conn.fetch_all(query=latest_posts_query)
+    return fetch_all
+
+
+async def get_post_comments(
+    conn: "SAConnection",
+    post_id: int,
+):
+
+    post_comments_query = (
+        select(
+            [
+                post_table.c.uid,
+                post_table.c.body,
+                user_table.c.username,
+            ]
+        )
+        .where(
+            (post_table.c.parent_post_id == post_id)
+            & (post_table.c.user_id == user_table.c.id)
+        )
+        .order_by((post_table.c.updated))
+        .apply_labels()
+    )
+    fetch_all = await conn.fetch_all(query=post_comments_query)
+    return fetch_all
+
+
+async def get_post_feed_followers(
+    conn: "SAConnection",
+    post_id: int,
+):
+
+    feed_post_followers_query = (
+        select(
+            [
+                feed_table.c.to_user_id,
+            ]
+        )
+        .where((feed_table.c.post_id == post_id))
+        .group_by(feed_table.c.to_user_id)
+        .apply_labels()
+    )
+    fetch_all = await conn.fetch_all(query=feed_post_followers_query)
     return fetch_all
