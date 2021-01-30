@@ -72,6 +72,7 @@ async def post() -> Tuple["Response", int]:
             for follower in followers:
                 # insert on feed table for all followers
                 feed_record = {
+                    "uid": str(uuid.uuid4()),
                     "post_id": post_record_id,
                     "action": ActionType.new_post,
                     "fm_user_id": session.get("user_id"),
@@ -82,6 +83,7 @@ async def post() -> Tuple["Response", int]:
 
             # add it for the same user
             feed_record = {
+                "uid": str(uuid.uuid4()),
                 "post_id": post_record_id,
                 "action": ActionType.new_post,
                 "fm_user_id": session.get("user_id"),

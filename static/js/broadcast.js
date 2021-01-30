@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   postHtml = function(data) {
     const HTMLmarkup = `
-    <div class="media" id="post-${ data.uid }">
+    <div class="media" id="post-${ data.post_uid }">
       <div class="media-left">
         <a href="${ data.user_profile_url }">
           <img class="media-object" src="${ data.user_image }" alt="${ data.username }">
@@ -15,18 +15,18 @@ document.addEventListener("DOMContentLoaded", function () {
         <a href="${ data.user_profile_url }">
           <div class="media-username">@${ data.username }</div>
         </a>      
-        <div class="media-body-text" id="post-text-${ data.uid }">${ data.body }</div>
+        <div class="media-body-text" id="post-text-${ data.post_uid }">${ data.body }</div>
         <div class="media-body-datetime">
-          <span id="post-datetime-${ data.uid }">${ data.datetime }</span>&nbsp;-&nbsp;
-          <a class="post-comment-link" data-post-id="${ data.uid }" href="#">Comment</a>
+          <span id="post-datetime-${ data.post_uid }">${ data.datetime }</span>&nbsp;-&nbsp;
+          <a class="post-comment-link" data-post-uid="${ data.post_uid }" href="#">Comment</a>
         </div>
-        <div class="media-body-comment-entry" id="post-${ datau.id }-comment" style="display: none;">
+        <div class="media-body-comment-entry" id="post-${ data.post_uid }-comment" style="display: none;">
           <textarea
             name="post-comment"
             class="form-control"            
             rows="3"
             placeholder="Add your comment"></textarea>
-          <button data-post-id="${ data.uid }" data-parent-post-id="${ post.origin_post_id }" class="btn btn-primary post-comment-btn">Post</button>
+          <button data-post-id="${ data.post_uid }" data-parent-post-id="${ post.origin_post_id }" class="btn btn-primary post-comment-btn">Post</button>
         </div>
       </div>
     </div>

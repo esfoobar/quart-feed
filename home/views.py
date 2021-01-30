@@ -53,7 +53,7 @@ async def init() -> str:
         post = post_context(row)
 
         # get comments
-        comments = await get_post_comments(conn, post["id"])
+        comments = await get_post_comments(conn, post["post_id"])
 
         post["comments"] = []
         for comment in comments:
@@ -118,6 +118,7 @@ def post_context(row) -> dict:
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
     post: dict = {
         "feed_uid": row["feed_uid"],
+        "post_id": row["post_id"],
         "post_uid": row["post_uid"],
         "body": row["post_body"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
@@ -131,7 +132,7 @@ def post_context(row) -> dict:
 
 def comment_context(row) -> dict:
     comment: dict = {
-        "uid": row["post_uid"],
+        "post_uid": row["post_uid"],
         "body": row["post_body"],
         "username": row["user_username"],
     }
