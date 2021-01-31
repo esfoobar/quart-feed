@@ -134,8 +134,6 @@ async def comment() -> Tuple["Response", int]:
             result = await conn.execute(query=post_query)
             post_record_id = result
 
-            breakpoint()
-
             # get all the followers, where to_user_id = session user id
             followers = await get_post_feed_followers(conn, parent_post_id)
 
@@ -143,6 +141,7 @@ async def comment() -> Tuple["Response", int]:
             for follower in followers:
                 # insert on feed table for all followers
                 feed_record = {
+                    "uid": str(uuid.uuid4()),
                     "post_id": post_record_id,
                     "action": ActionType.new_comment,
                     "fm_user_id": session.get("user_id"),

@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
             class="form-control"            
             rows="3"
             placeholder="Add your comment"></textarea>
-          <button data-post-id="${ data.post_uid }" data-parent-post-id="${ post.origin_post_id }" class="btn btn-primary post-comment-btn">Post</button>
+          <button data-post-uid="${ data.post_uid }" data-parent-post-id="${ data.post_id }" class="btn btn-primary post-comment-btn">Post</button>
         </div>
       </div>
     </div>
@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener('click',function(e){
     if (e.target && e.target.classList.contains("post-comment-link")){
-      var postCommentUid = e.target.dataset.postUid;
-      var postComment = document.getElementById("post-" + postCommentUid + "-comment");
+      var postUid = e.target.dataset.postUid;
+      var postComment = document.getElementById("post-" + postUid + "-comment");
       if (postComment.style.display === "none") {
         postComment.style.display = "block";
         postComment.focus();
@@ -89,10 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
      }
 
      if (e.target && e.target.classList.contains("post-comment-btn")){
-      var postCommentUid = e.target.dataset.postUid;
-      var originPostId = e.target.dataset.originPostId;
-      var postCommentTextElement = document.getElementById("post-" + originPostId + "-comment-text");
+      var postUid = e.target.dataset.postUid;
+      var parentPostId = e.target.dataset.parentPostId;
+      var postCommentTextElement = document.getElementById("post-" + postUid + "-comment-text");
       var postCommentText = postCommentTextElement.value;
+      var postComment = document.getElementById("post-" + postUid + "-comment");
 
       fetch("/comment", {
         method: "POST",
@@ -101,13 +102,14 @@ document.addEventListener("DOMContentLoaded", function () {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          origin_post_id: originPostId,
+          parent_post_id: parentPostId,
           comment: postCommentText,
           csrf_token: document.getElementsByName("csrf_token")[0].value,
         }),
       });
 
-      postCommentTextElement.value = "";     
+      postCommentTextElement.value = "";
+      postComment.style.display = "none";
       e.preventDefault();
  }
  });

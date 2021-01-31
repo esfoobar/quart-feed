@@ -128,7 +128,7 @@ async def login() -> Union[str, "Response"]:
                 session.pop("next")
                 return redirect(next)
             else:
-                return "User logged in"
+                return redirect(url_for("home_app.init"))
 
         else:
             session["csrf_token"] = str(csrf_token)

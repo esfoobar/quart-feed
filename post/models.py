@@ -82,13 +82,11 @@ feed_table = Table(
 async def get_latest_posts(
     conn: "SAConnection",
     user_id: int,
-    action_type: ActionType = ActionType.new_post,
     num_posts: int = 10,
     from_post_id: int = 0,
 ):
-    # get the last 10 posts in feed in reverse order and
-    # pass to the context the last id as cursor_id
 
+    # if from_post_id > 0 then we want to get all feed items
     if from_post_id > 0:
         latest_posts_query = (
             select(
@@ -98,6 +96,7 @@ async def get_latest_posts(
                     post_table.c.id,
                     post_table.c.uid,
                     post_table.c.body,
+                    feed_table.c.action,
                     feed_table.c.updated,
                     user_table.c.username,
                     user_table.c.id,
@@ -109,13 +108,15 @@ async def get_latest_posts(
                 & (feed_table.c.post_id == post_table.c.id)
                 & (feed_table.c.to_user_id == user_id)
                 & (feed_table.c.fm_user_id == user_table.c.id)
-                & (feed_table.c.action == action_type)
             )
             .order_by(desc(feed_table.c.updated))
             .limit(num_posts)
             .offset(0)
             .apply_labels()
         )
+
+    # otherwise this is the initial post query, so just get posts only
+    # not comments and likes
     else:
         latest_posts_query = (
             select(
@@ -125,6 +126,7 @@ async def get_latest_posts(
                     post_table.c.id,
                     post_table.c.uid,
                     post_table.c.body,
+                    feed_table.c.action,
                     feed_table.c.updated,
                     user_table.c.username,
                     user_table.c.id,

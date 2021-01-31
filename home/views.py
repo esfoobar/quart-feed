@@ -86,12 +86,18 @@ async def sse() -> "Response":
 
                 if len(recent_posts) > 0:
                     row = recent_posts[0]
+                    post_obj = post_context(row)
+                    action_type = post_obj["action"]
+                    del post_obj["action"]
+                    event = None
 
-                    event = ServerSentEvent(
-                        json.dumps(post_context(row)), event="new_post", id=id
-                    )
+                    if action_type == ActionType.new_post:
+                        event = ServerSentEvent(
+                            json.dumps(post_obj), event="new_post", id=id
+                        )
 
-                    yield event.encode()
+                    if event:
+                        yield event.encode()
 
                     # update the cursor_id
                     cursor_id = row["feed_id"]
@@ -121,6 +127,7 @@ def post_context(row) -> dict:
         "post_id": row["post_id"],
         "post_uid": row["post_uid"],
         "body": row["post_body"],
+        "action": row["feed_action"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],
         "user_profile_url": f"/user/{row['user_username']}",
