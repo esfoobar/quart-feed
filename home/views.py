@@ -23,6 +23,8 @@ from .models import ServerSentEvent
 from user.decorators import login_required
 from post.models import (
     feed_table,
+    get_comment_parent_uid,
+    get_last_feed_id,
     post_table,
     ActionType,
     get_latest_posts,
@@ -44,7 +46,6 @@ async def init() -> str:
     session["csrf_token"] = str(csrf_token)
     conn = current_app.dbc
 
-    cursor_id: int = 0
     posts: list = []
 
     post_results = await get_latest_posts(conn, session["user_id"])
@@ -57,12 +58,15 @@ async def init() -> str:
 
         post["comments"] = []
         for comment in comments:
+            # not needed for initial load
+            comment = dict(comment)
+            comment["post_parent_post_uid"] = None
             post["comments"].append(comment_context(comment))
 
         posts.append(post)
 
-        if cursor_id == 0:
-            cursor_id = row["feed_id"]
+    # Get last feed id for user
+    cursor_id = await get_last_feed_id(conn, session["user_id"])
 
     return await render_template(
         "home/init.html", posts=posts, csrf_token=csrf_token, cursor_id=cursor_id
@@ -86,14 +90,27 @@ async def sse() -> "Response":
 
                 if len(recent_posts) > 0:
                     row = recent_posts[0]
-                    post_obj = post_context(row)
-                    action_type = post_obj["action"]
-                    del post_obj["action"]
+                    action_type = row["feed_action"]
                     event = None
 
                     if action_type == ActionType.new_post:
+                        post_obj = post_context(row)
                         event = ServerSentEvent(
                             json.dumps(post_obj), event="new_post", id=id
+                        )
+
+                    if action_type == ActionType.new_comment:
+                        # get post parent uid
+                        comment = dict(row)
+
+                        parent_post_row = await get_comment_parent_uid(
+                            conn, post_id=comment["post_id"]
+                        )
+                        comment["post_parent_post_uid"] = parent_post_row["post_uid"]
+
+                        comment_obj = comment_context(comment)
+                        event = ServerSentEvent(
+                            json.dumps(comment_obj), event="new_comment", id=id
                         )
 
                     if event:
@@ -123,11 +140,10 @@ async def sse() -> "Response":
 def post_context(row) -> dict:
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
     post: dict = {
-        "feed_uid": row["feed_uid"],
         "post_id": row["post_id"],
         "post_uid": row["post_uid"],
+        "parent_post_id": row["post_parent_post_id"],
         "body": row["post_body"],
-        "action": row["feed_action"],
         "datetime": arrow.get(row["feed_updated"]).humanize(),
         "username": row["user_username"],
         "user_profile_url": f"/user/{row['user_username']}",
@@ -140,6 +156,7 @@ def post_context(row) -> dict:
 def comment_context(row) -> dict:
     comment: dict = {
         "post_uid": row["post_uid"],
+        "parent_post_uid": row["post_parent_post_uid"],
         "body": row["post_body"],
         "username": row["user_username"],
     }

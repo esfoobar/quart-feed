@@ -39,10 +39,10 @@ block content %} {% include "navbar.html" %}
               <span id="post-datetime-{{ post.post_uid }}">{{ post.datetime }}</span>&nbsp;-&nbsp;
               <a class="post-comment-link" data-post-uid="{{ post.post_uid }}" href="#">Comment</a>
             </div>
-            <div class="media-body-comments-list" id="post-{{ post.post_uid }}-comment-list">
-              <ul>
+            <div class="media-body-comments-list">
+              <ul id="post-{{ post.post_uid }}-comment-list">
                 {% for comment in post.comments %}
-                <li id="post-{{ post.post_uid }}-comment-{{ comment.uid }}">
+                <li id="comment-{{ post.post_uid }}-li">
                   <span>{{ comment.body }}</span>&nbsp;-&nbsp;
                   <a href="{{ url_for("user_app.profile", username=comment.username) }}">
                     <span>{{ comment.username }}</span>

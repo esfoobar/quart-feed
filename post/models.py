@@ -11,6 +11,8 @@ from sqlalchemy import (
     select,
     desc,
 )
+from sqlalchemy.orm import relationship
+from db import metadata
 import enum
 from typing import TYPE_CHECKING
 import logging
@@ -19,7 +21,7 @@ if TYPE_CHECKING:
     from aiomysql.sa.connection import SAConnection
 
 from settings import IMAGES_URL
-from user.models import metadata, user_table
+from user.models import user_table
 
 post_table = Table(
     "post",
@@ -95,6 +97,7 @@ async def get_latest_posts(
                     feed_table.c.uid,
                     post_table.c.id,
                     post_table.c.uid,
+                    post_table.c.parent_post_id,
                     post_table.c.body,
                     feed_table.c.action,
                     feed_table.c.updated,
@@ -125,6 +128,7 @@ async def get_latest_posts(
                     feed_table.c.uid,
                     post_table.c.id,
                     post_table.c.uid,
+                    post_table.c.parent_post_id,
                     post_table.c.body,
                     feed_table.c.action,
                     feed_table.c.updated,
@@ -173,6 +177,25 @@ async def get_post_comments(
     return fetch_all
 
 
+async def get_comment_parent_uid(
+    conn: "SAConnection",
+    post_id: int,
+):
+
+    post_query = (
+        select(
+            [
+                post_table.c.parent_post_id,
+            ]
+        )
+        .where((post_table.c.id == post_id))
+        .apply_labels()
+    )
+    fetch_one = await conn.fetch_one(query=post_query)
+    breakpoint()
+    return fetch_one
+
+
 async def get_post_feed_followers(
     conn: "SAConnection",
     post_id: int,
@@ -190,3 +213,23 @@ async def get_post_feed_followers(
     )
     fetch_all = await conn.fetch_all(query=feed_post_followers_query)
     return fetch_all
+
+
+async def get_last_feed_id(
+    conn: "SAConnection",
+    user_id: int,
+):
+
+    last_feed_post_query = (
+        select(
+            [
+                feed_table.c.id,
+            ]
+        )
+        .where((feed_table.c.to_user_id == user_id))
+        .order_by(desc(feed_table.c.updated))
+        .limit(1)
+        .apply_labels()
+    )
+    fetch_one = await conn.fetch_one(query=last_feed_post_query)
+    return fetch_one["feed_id"]

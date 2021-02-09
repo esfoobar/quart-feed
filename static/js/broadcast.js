@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
           <span id="post-datetime-${ data.post_uid }">${ data.datetime }</span>&nbsp;-&nbsp;
           <a class="post-comment-link" data-post-uid="${ data.post_uid }" href="#">Comment</a>
         </div>
+        <div class="media-body-comments-list">
+          <ul id="post-{{ post.post_uid }}-comment-list">
+          </ul>
+        </div>
         <div class="media-body-comment-entry" id="post-${ data.post_uid }-comment" style="display: none;">
           <textarea
             name="post-comment"
@@ -31,6 +35,19 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
     </div>
     <hr />
+    `;
+
+    return HTMLmarkup;
+  }
+
+  commentHtml = function(data) {
+    const HTMLmarkup = `
+    <li id="comment-${ data.post_uid }-li">
+      <span>${ data.body }</span>&nbsp;-&nbsp;
+      <a href="/user/${ data.username }">
+        <span>${ data.username }</span>
+      </a>
+    </li>
     `;
 
     return HTMLmarkup;
@@ -59,6 +76,14 @@ document.addEventListener("DOMContentLoaded", function () {
     message_dom.innerHTML = (postHtml(JSON.parse(e.data))).trim();
     messages_dom.prepend(message_dom);
   });
+
+  es.addEventListener("new_comment", function (e) {
+    commentObject = JSON.parse(e.data);
+    var messages_dom = document.getElementById("posts");
+    var message_dom = document.createElement("text");
+    message_dom.innerHTML = (postHtml(JSON.parse(e.data))).trim();
+    messages_dom.prepend(message_dom);
+  });  
 
   document.getElementById("post").onclick = function () {
     fetch("/post", {

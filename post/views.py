@@ -134,7 +134,7 @@ async def comment() -> Tuple["Response", int]:
             result = await conn.execute(query=post_query)
             post_record_id = result
 
-            # get all the followers, where to_user_id = session user id
+            # get all the followers of the parent post
             followers = await get_post_feed_followers(conn, parent_post_id)
 
             # insert on feed table
