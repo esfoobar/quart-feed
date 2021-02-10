@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <a class="post-comment-link" data-post-uid="${ data.post_uid }" href="#">Comment</a>
         </div>
         <div class="media-body-comments-list">
-          <ul id="post-${ post.post_uid }-comment-list">
+          <ul id="post-${ data.post_uid }-comment-list">
           </ul>
         </div>
         <div class="media-body-comment-entry" id="post-${ data.post_uid }-comment" style="display: none;">
