@@ -103,10 +103,10 @@ async def sse() -> "Response":
                         # get post parent uid
                         comment = dict(row)
 
-                        parent_post_row = await get_comment_parent_uid(
+                        parent_post_uid = await get_comment_parent_uid(
                             conn, post_id=comment["post_id"]
                         )
-                        comment["post_parent_post_uid"] = parent_post_row["post_uid"]
+                        comment["post_parent_post_uid"] = parent_post_uid
 
                         comment_obj = comment_context(comment)
                         event = ServerSentEvent(

@@ -55,11 +55,6 @@ class ActionType(enum.Enum):
     new_post = 1
     new_comment = 2
     new_like = 3
-    delete_post = 4
-    delete_comment = 5
-    delete_like = 6
-    update_post = 7
-    update_comment = 8
 
 
 feed_table = Table(
@@ -182,7 +177,7 @@ async def get_comment_parent_uid(
     post_id: int,
 ):
 
-    post_query = (
+    parent_post_query = (
         select(
             [
                 post_table.c.parent_post_id,
@@ -191,9 +186,22 @@ async def get_comment_parent_uid(
         .where((post_table.c.id == post_id))
         .apply_labels()
     )
+    fetch_one = await conn.fetch_one(query=parent_post_query)
+    parent_post_id = fetch_one["post_parent_post_id"]
+
+    post_query = (
+        select(
+            [
+                post_table.c.uid,
+            ]
+        )
+        .where((post_table.c.id == parent_post_id))
+        .apply_labels()
+    )
     fetch_one = await conn.fetch_one(query=post_query)
-    breakpoint()
-    return fetch_one
+    parent_post_uid = fetch_one["post_uid"]
+
+    return parent_post_uid
 
 
 async def get_post_feed_followers(

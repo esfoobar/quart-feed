@@ -78,11 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   es.addEventListener("new_comment", function (e) {
-    commentObject = JSON.parse(e.data);
-    var messages_dom = document.getElementById("posts");
-    var message_dom = document.createElement("text");
-    message_dom.innerHTML = (postHtml(JSON.parse(e.data))).trim();
-    messages_dom.prepend(message_dom);
+    var commentObject = JSON.parse(e.data);
+    var parentPostUid = commentObject.parent_post_uid;
+    var comments_list_dom = document.getElementById("post-" + parentPostUid + "-comment-list");
+    var comment_dom = document.createElement("text");
+    comment_dom.innerHTML = (commentHtml(commentObject)).trim();
+    comments_list_dom.append(comment_dom);
   });  
 
   document.getElementById("post").onclick = function () {
