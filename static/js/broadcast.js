@@ -27,7 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="media-body-comment-entry" id="post-${ data.post_uid }-comment" style="display: none;">
           <textarea
             name="post-comment"
-            class="form-control"            
+            class="form-control"
+            id="post-${ data.post_uid }-comment-text"            
             rows="3"
             placeholder="Add your comment"></textarea>
           <button data-post-uid="${ data.post_uid }" data-parent-post-id="${ data.post_id }" class="btn btn-primary post-comment-btn">Post</button>
