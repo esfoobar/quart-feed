@@ -240,4 +240,7 @@ async def get_last_feed_id(
         .apply_labels()
     )
     fetch_one = await conn.fetch_one(query=last_feed_post_query)
-    return fetch_one["feed_id"]
+    if fetch_one:
+        return fetch_one["feed_id"]
+    else:
+        return 0

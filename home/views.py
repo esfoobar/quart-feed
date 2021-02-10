@@ -3,17 +3,12 @@ from quart import (
     render_template,
     request,
     session,
-    redirect,
-    url_for,
-    flash,
-    abort,
     make_response,
     current_app,
 )
 from typing import Union, TYPE_CHECKING
 import uuid
 import asyncio
-import random
 from sqlalchemy import select, desc
 import arrow
 import json
@@ -22,10 +17,8 @@ import logging
 from .models import ServerSentEvent
 from user.decorators import login_required
 from post.models import (
-    feed_table,
     get_comment_parent_uid,
     get_last_feed_id,
-    post_table,
     ActionType,
     get_latest_posts,
     get_post_comments,
