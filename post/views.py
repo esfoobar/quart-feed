@@ -102,10 +102,10 @@ async def comment() -> Tuple["Response", int]:
 
     if request.method == "POST":
         data = await request.get_json()
-        parent_post_id = int(data.get("parent_post_id", 0))
+        post_uid = int(data.get("post_uid", 0))
         comment = data.get("comment", "")
 
-        if not parent_post_id or post == 0:
+        if not post_uid or post == 0:
             error = True
             await flash("Invalid post id")
 

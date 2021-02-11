@@ -37,7 +37,8 @@ block content %} {% include "navbar.html" %}
             <div class="media-body-text" id="post-text-{{ post.post_uid }}">{{ post.body }}</div>
             <div class="media-body-datetime">
               <span id="post-datetime-{{ post.post_uid }}">{{ post.datetime }}</span>&nbsp;-&nbsp;
-              <a class="post-comment-link" data-post-uid="{{ post.post_uid }}" href="#">Comment</a>
+              <a class="post-comment-link" data-post-uid="{{ post.post_uid }}" href="#">Comment</a>&nbsp;-&nbsp;
+              <a class="post-like-link" data-post-uid="{{ post.post_uid }}" href="#">Like</a>
             </div>
             <div class="media-body-comments-list">
               <ul id="post-{{ post.post_uid }}-comment-list">
@@ -58,7 +59,7 @@ block content %} {% include "navbar.html" %}
                 id="post-{{ post.post_uid }}-comment-text"
                 rows="3"
                 placeholder="Add your comment"></textarea>
-              <button data-post-uid="{{ post.post_uid }}" data-parent-post-id="{{ post.post_id }}" class="btn btn-primary post-comment-btn">Post</button>
+              <button data-post-uid="{{ post.post_uid }}" class="btn btn-primary post-comment-btn">Post</button>
             </div>            
           </div>
         </div>

@@ -150,8 +150,20 @@ async def get_latest_posts(
 
 async def get_post_comments(
     conn: "SAConnection",
-    post_id: int,
+    post_uid: str,
 ):
+
+    parent_post_query = (
+        select(
+            [
+                post_table.c.id,
+            ]
+        )
+        .where((post_table.c.uid == post_uid))
+        .apply_labels()
+    )
+    fetch_one = await conn.fetch_one(query=parent_post_query)
+    parent_post_id = fetch_one["post_id"]
 
     post_comments_query = (
         select(
@@ -162,7 +174,7 @@ async def get_post_comments(
             ]
         )
         .where(
-            (post_table.c.parent_post_id == post_id)
+            (post_table.c.parent_post_id == parent_post_id)
             & (post_table.c.user_id == user_table.c.id)
         )
         .order_by((post_table.c.updated))

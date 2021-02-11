@@ -47,7 +47,7 @@ async def init() -> str:
         post = post_context(row)
 
         # get comments
-        comments = await get_post_comments(conn, post["post_id"])
+        comments = await get_post_comments(conn, post["post_uid"])
 
         post["comments"] = []
         for comment in comments:
@@ -133,7 +133,6 @@ async def sse() -> "Response":
 def post_context(row) -> dict:
     user_images = image_url_from_image_ts(row["user_id"], row["user_image"])
     post: dict = {
-        "post_id": row["post_id"],
         "post_uid": row["post_uid"],
         "parent_post_id": row["post_parent_post_id"],
         "body": row["post_body"],
