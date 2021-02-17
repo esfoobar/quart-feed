@@ -148,11 +148,10 @@ async def get_latest_posts(
     return fetch_all
 
 
-async def get_post_comments(
+async def get_post_id_from_uid(
     conn: "SAConnection",
     post_uid: str,
 ):
-
     parent_post_query = (
         select(
             [
@@ -163,7 +162,15 @@ async def get_post_comments(
         .apply_labels()
     )
     fetch_one = await conn.fetch_one(query=parent_post_query)
-    parent_post_id = fetch_one["post_id"]
+    return fetch_one["post_id"]
+
+
+async def get_post_comments(
+    conn: "SAConnection",
+    post_uid: str,
+):
+
+    parent_post_id = await get_post_id_from_uid(conn, post_uid)
 
     post_comments_query = (
         select(

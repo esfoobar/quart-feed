@@ -19,11 +19,13 @@ if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
 from post.models import (
+    get_comment_parent_uid,
     post_table,
     like_table,
     feed_table,
     ActionType,
     get_post_feed_followers,
+    get_post_id_from_uid,
 )
 from relationship.models import get_user_followers
 from user.decorators import login_required
@@ -101,11 +103,12 @@ async def comment() -> Tuple["Response", int]:
     error: bool = False
 
     if request.method == "POST":
+        breakpoint()
         data = await request.get_json()
-        post_uid = int(data.get("post_uid", 0))
+        post_uid = data.get("post_uid", None)
         comment = data.get("comment", "")
 
-        if not post_uid or post == 0:
+        if not post_uid:
             error = True
             await flash("Invalid post id")
 
@@ -123,7 +126,9 @@ async def comment() -> Tuple["Response", int]:
         if not error:
             conn = current_app.dbc
 
-            # insert on post table
+            parent_post_id = await get_post_id_from_uid(conn, post_uid)
+
+            # insert comment on post table
             post_record = {
                 "uid": str(uuid.uuid4()),
                 "parent_post_id": parent_post_id,
@@ -134,7 +139,7 @@ async def comment() -> Tuple["Response", int]:
             result = await conn.execute(query=post_query)
             post_record_id = result
 
-            # get all the followers of the parent post
+            # get all the followers of the parent feed post
             followers = await get_post_feed_followers(conn, parent_post_id)
 
             # insert on feed table
