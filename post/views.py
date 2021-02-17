@@ -103,7 +103,6 @@ async def comment() -> Tuple["Response", int]:
     error: bool = False
 
     if request.method == "POST":
-        breakpoint()
         data = await request.get_json()
         post_uid = data.get("post_uid", None)
         comment = data.get("comment", "")
