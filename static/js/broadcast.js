@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="media-body-datetime">
           <span id="post-datetime-${data.post_uid}">${data.datetime}</span>&nbsp;-&nbsp;
           <a class="post-comment-link" data-post-uid="${data.post_uid}" href="#">Comment</a>&nbsp;-&nbsp;
-          <a class="post-like-link" data-post-uid="{{ post.post_uid }}" href="#">Like</a>
+          <a class="post-like-link" data-post-uid="${data.post_uid}" href="#">Like</a>
         </div>
         <div class="media-body-comments-list">
           <ul id="post-${data.post_uid}-comment-list">
@@ -144,14 +144,8 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
     }
 
-    if (e.target && e.target.classList.contains("post-comment-btn")) {
+    if (e.target && e.target.classList.contains("post-like-link")) {
       var postUid = e.target.dataset.postUid;
-      var parentPostId = e.target.dataset.parentPostId;
-      var postCommentTextElement = document.getElementById(
-        "post-" + postUid + "-comment-text"
-      );
-      var postCommentText = postCommentTextElement.value;
-      var postComment = document.getElementById("post-" + postUid + "-comment");
 
       fetch("/like", {
         method: "POST",
@@ -160,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          parent_post_id: parentPostId,
+          post_uid: postUid,
           csrf_token: document.getElementsByName("csrf_token")[0].value,
         }),
       });
