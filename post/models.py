@@ -263,3 +263,28 @@ async def get_last_feed_id(
         return fetch_one["feed_id"]
     else:
         return 0
+
+
+async def get_post_likes(
+    conn: "SAConnection",
+    post_uid: str,
+):
+
+    parent_post_id = await get_post_id_from_uid(conn, post_uid)
+
+    post_likes_query = (
+        select(
+            [
+                like_table.c.uid,
+                user_table.c.username,
+            ]
+        )
+        .where(
+            (like_table.c.parent_post_id == parent_post_id)
+            & (like_table.c.user_id == user_table.c.id)
+        )
+        .order_by((like_table.c.created))
+        .apply_labels()
+    )
+    fetch_all = await conn.fetch_all(query=post_likes_query)
+    return fetch_all

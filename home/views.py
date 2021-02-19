@@ -22,6 +22,7 @@ from post.models import (
     ActionType,
     get_latest_posts,
     get_post_comments,
+    get_post_likes,
 )
 from user.models import user_table, image_url_from_image_ts
 
@@ -51,10 +52,18 @@ async def init() -> str:
 
         post["comments"] = []
         for comment in comments:
-            # not needed for initial load
+            # Parent post id is not needed for initial load
+            # so we cast the SQL row to a dict and set the parent_post_uid as None
             comment = dict(comment)
             comment["post_parent_post_uid"] = None
             post["comments"].append(comment_context(comment))
+
+        # get likes
+        likes = await get_post_likes(conn, post["post_uid"])
+
+        post["likes"] = []
+        for like in likes:
+            post["likes"].append(like_context(like))
 
         posts.append(post)
 
@@ -150,6 +159,15 @@ def comment_context(row) -> dict:
         "post_uid": row["post_uid"],
         "parent_post_uid": row["post_parent_post_uid"],
         "body": row["post_body"],
+        "username": row["user_username"],
+    }
+
+    return comment
+
+
+def like_context(row) -> dict:
+    comment: dict = {
+        "like_uid": row["like_uid"],
         "username": row["user_username"],
     }
 

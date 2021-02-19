@@ -40,6 +40,18 @@ block content %} {% include "navbar.html" %}
               <a class="post-comment-link" data-post-uid="{{ post.post_uid }}" href="#">Comment</a>&nbsp;-&nbsp;
               <a class="post-like-link" data-post-uid="{{ post.post_uid }}" href="#">Like</a>
             </div>
+            <div class="media-body-likes-list-{{ post.post_uid }}-" style="display: {% if post.likes|length %}block{% else %}none{% endif %}">
+              <span class="likes-label">Liked by</span>:
+              <span class="likes-list" id="span-likes-list-{{ post.post_uid }}">
+              {% for like in post.likes %}
+              <span class="likes-list-item" id="span-likes-list-item-{{ like.like_uid }}">
+                <a href="{{ url_for("user_app.profile", username=like.username) }}">
+                  <span>{{ like.username }}</span>
+                </a>
+              </span>
+              {% endfor %}
+              </span>
+            </div>
             <div class="media-body-comments-list">
               <ul id="post-{{ post.post_uid }}-comment-list">
                 {% for comment in post.comments %}
