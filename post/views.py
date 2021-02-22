@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from quart.wrappers.response import Response
 
 from post.models import (
-    get_comment_parent_uid,
     post_table,
     like_table,
     feed_table,

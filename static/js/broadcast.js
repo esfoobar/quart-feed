@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", function () {
           <a class="post-comment-link" data-post-uid="${data.post_uid}" href="#">Comment</a>&nbsp;-&nbsp;
           <a class="post-like-link" data-post-uid="${data.post_uid}" href="#">Like</a>
         </div>
+        <div id="media-body-likes-list-${data.post_uid}" style="display: none">
+          <span class="likes-label">Liked by</span>:
+          <span class="likes-list" id="span-likes-list-${data.post_uid}">
+          </span>
+        </div>        
         <div class="media-body-comments-list">
           <ul id="post-${data.post_uid}-comment-list">
           </ul>
@@ -55,21 +60,16 @@ document.addEventListener("DOMContentLoaded", function () {
     return HTMLmarkup;
   };
 
-  htmlToElements = function (html) {
-    var template = document.createElement("template");
-    template.innerHTML = html;
-    return template.content.childNodes;
-  };
+  likeHtml = function (data) {
+    const HTMLmarkup = `
+    <span class="likes-list-item" id="span-likes-list-item-${data.like_uid}">
+      <a href="/user/${data.username}">
+        <span>${data.username}</span>
+      </a>
+    </span>
+    `;
 
-  es.onmessage = function (event) {
-    var messages_dom = document.getElementById("posts");
-    var message_dom = document.createElement("text");
-    var content_dom = document.createTextNode(
-      "Received: " + event.data + ", Type:" + event.type
-    );
-    // console.log("event:", event);
-    message_dom.appendChild(content_dom);
-    messages_dom.appendChild(message_dom);
+    return HTMLmarkup;
   };
 
   es.addEventListener("new_post", function (e) {
@@ -88,6 +88,19 @@ document.addEventListener("DOMContentLoaded", function () {
     var comment_dom = document.createElement("text");
     comment_dom.innerHTML = commentHtml(commentObject).trim();
     comments_list_dom.append(comment_dom);
+  });
+
+  es.addEventListener("new_like", function (e) {
+    var likeObject = JSON.parse(e.data);
+    var postUid = likeObject.post_uid;
+    var likes_list_container_dom = document.getElementById(
+      "media-body-likes-list-" + postUid
+    );
+    likes_list_container_dom.style.display = "block";
+    var likes_list_dom = document.getElementById("span-likes-list-" + postUid);
+    var like_dom = document.createElement("text");
+    like_dom.innerHTML = likeHtml(likeObject).trim();
+    likes_list_dom.append(like_dom);
   });
 
   document.getElementById("post").onclick = function () {

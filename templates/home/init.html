@@ -40,7 +40,7 @@ block content %} {% include "navbar.html" %}
               <a class="post-comment-link" data-post-uid="{{ post.post_uid }}" href="#">Comment</a>&nbsp;-&nbsp;
               <a class="post-like-link" data-post-uid="{{ post.post_uid }}" href="#">Like</a>
             </div>
-            <div class="media-body-likes-list-{{ post.post_uid }}-" style="display: {% if post.likes|length %}block{% else %}none{% endif %}">
+            <div id="media-body-likes-list-{{ post.post_uid }}" style="display: {% if post.likes|length %}block{% else %}none{% endif %}">
               <span class="likes-label">Liked by</span>:
               <span class="likes-list" id="span-likes-list-{{ post.post_uid }}">
               {% for like in post.likes %}

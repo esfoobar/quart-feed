@@ -152,7 +152,7 @@ async def get_post_id_from_uid(
     conn: "SAConnection",
     post_uid: str,
 ):
-    parent_post_query = (
+    post_query = (
         select(
             [
                 post_table.c.id,
@@ -161,8 +161,25 @@ async def get_post_id_from_uid(
         .where((post_table.c.uid == post_uid))
         .apply_labels()
     )
-    fetch_one = await conn.fetch_one(query=parent_post_query)
+    fetch_one = await conn.fetch_one(query=post_query)
     return fetch_one["post_id"]
+
+
+async def get_post_uid_from_id(
+    conn: "SAConnection",
+    post_id: str,
+):
+    post_query = (
+        select(
+            [
+                post_table.c.uid,
+            ]
+        )
+        .where((post_table.c.id == post_id))
+        .apply_labels()
+    )
+    fetch_one = await conn.fetch_one(query=post_query)
+    return fetch_one["post_uid"]
 
 
 async def get_post_comments(
@@ -191,7 +208,7 @@ async def get_post_comments(
     return fetch_all
 
 
-async def get_comment_parent_uid(
+async def get_post_parent_uid(
     conn: "SAConnection",
     post_id: int,
 ):

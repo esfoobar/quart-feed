@@ -17,12 +17,13 @@ import logging
 from .models import ServerSentEvent
 from user.decorators import login_required
 from post.models import (
-    get_comment_parent_uid,
+    get_post_parent_uid,
     get_last_feed_id,
     ActionType,
     get_latest_posts,
     get_post_comments,
     get_post_likes,
+    get_post_uid_from_id,
 )
 from user.models import user_table, image_url_from_image_ts
 
@@ -105,7 +106,7 @@ async def sse() -> "Response":
                         # get post parent uid
                         comment = dict(row)
 
-                        parent_post_uid = await get_comment_parent_uid(
+                        parent_post_uid = await get_post_parent_uid(
                             conn, post_id=comment["post_id"]
                         )
                         comment["post_parent_post_uid"] = parent_post_uid
@@ -113,6 +114,22 @@ async def sse() -> "Response":
                         comment_obj = comment_context(comment)
                         event = ServerSentEvent(
                             json.dumps(comment_obj), event="new_comment", id=id
+                        )
+
+                    if action_type == ActionType.new_like:
+                        # get post parent uid
+                        like = dict(row)
+
+                        post_uid = await get_post_uid_from_id(
+                            conn, post_id=like["post_id"]
+                        )
+                        like["like_uid"] = row["feed_uid"]
+
+                        like_obj = like_context(like)
+                        like_obj["post_uid"] = post_uid
+
+                        event = ServerSentEvent(
+                            json.dumps(like_obj), event="new_like", id=id
                         )
 
                     if event:
