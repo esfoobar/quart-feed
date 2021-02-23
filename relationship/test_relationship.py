@@ -2,8 +2,9 @@ import pytest
 from quart import current_app, session
 from sqlalchemy import create_engine, select
 
-from user.models import user_table, metadata as UserMetadata
-from relationship.models import relationship_table
+from db import metadata
+from user.models import *
+from relationship.models import *
 
 
 def user_dict(username):
@@ -13,8 +14,8 @@ def user_dict(username):
 @pytest.fixture(scope="module")
 def create_all(create_db):
     engine = create_engine(create_db["DB_URI"] + "/" + create_db["DATABASE_NAME"])
-    UserMetadata.bind = engine
-    UserMetadata.create_all()
+    metadata.bind = engine
+    metadata.create_all()
 
 
 @pytest.mark.asyncio

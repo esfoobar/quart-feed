@@ -2,8 +2,8 @@ import pytest
 from quart import current_app, session
 from sqlalchemy import create_engine, select
 
-from user.models import user_table
-from db import metadata as UserMetadata
+from user.models import *
+from db import metadata
 
 
 def user_dict():
@@ -13,8 +13,8 @@ def user_dict():
 @pytest.fixture(scope="module")
 def create_all(create_db):
     engine = create_engine(create_db["DB_URI"] + "/" + create_db["DATABASE_NAME"])
-    UserMetadata.bind = engine
-    UserMetadata.create_all()
+    metadata.bind = engine
+    metadata.create_all()
 
 
 @pytest.mark.asyncio
@@ -79,14 +79,7 @@ async def test_succesful_login(create_test_client, create_all, create_test_app):
         "/login", form=user_dict(), follow_redirects=True
     )
     body = await response.get_data()
-    assert "User logged in" in str(body)
-
-    response = await create_test_app.test_client().post(
-        "/login", form=user_dict(), follow_redirects=True
-    )
-    response = await create_test_client.get("/login")
-    body = await response.get_data()
-    assert "testuser" in str(body)
+    assert "@testuser" in str(body)
 
     # Check that the session is being set
     async with create_test_client.session_transaction() as sess:

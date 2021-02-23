@@ -5,7 +5,6 @@ from sqlalchemy import (
     String,
     ForeignKey,
     DateTime,
-    Text,
     Enum,
     func,
     select,
@@ -15,7 +14,6 @@ from sqlalchemy.orm import relationship
 from db import metadata
 import enum
 from typing import TYPE_CHECKING
-import logging
 
 if TYPE_CHECKING:
     from aiomysql.sa.connection import SAConnection
@@ -83,30 +81,32 @@ async def get_latest_posts(
     from_post_id: int = 0,
 ):
 
+    field_list = [
+        feed_table.c.id,
+        feed_table.c.uid,
+        post_table.c.id,
+        post_table.c.uid,
+        post_table.c.parent_post_id,
+        post_table.c.body,
+        feed_table.c.action,
+        feed_table.c.updated,
+        user_table.c.username,
+        user_table.c.id,
+        user_table.c.image,
+    ]
+
+    where_list = (
+        (feed_table.c.id > from_post_id)
+        & (feed_table.c.post_id == post_table.c.id)
+        & (feed_table.c.to_user_id == user_id)
+        & (feed_table.c.fm_user_id == user_table.c.id)
+    )
+
     # if from_post_id > 0 then we want to get all feed items
     if from_post_id > 0:
         latest_posts_query = (
-            select(
-                [
-                    feed_table.c.id,
-                    feed_table.c.uid,
-                    post_table.c.id,
-                    post_table.c.uid,
-                    post_table.c.parent_post_id,
-                    post_table.c.body,
-                    feed_table.c.action,
-                    feed_table.c.updated,
-                    user_table.c.username,
-                    user_table.c.id,
-                    user_table.c.image,
-                ]
-            )
-            .where(
-                (feed_table.c.id > from_post_id)
-                & (feed_table.c.post_id == post_table.c.id)
-                & (feed_table.c.to_user_id == user_id)
-                & (feed_table.c.fm_user_id == user_table.c.id)
-            )
+            select(field_list)
+            .where(where_list)
             .order_by(desc(feed_table.c.updated))
             .limit(num_posts)
             .offset(0)
@@ -117,27 +117,8 @@ async def get_latest_posts(
     # not comments and likes
     else:
         latest_posts_query = (
-            select(
-                [
-                    feed_table.c.id,
-                    feed_table.c.uid,
-                    post_table.c.id,
-                    post_table.c.uid,
-                    post_table.c.parent_post_id,
-                    post_table.c.body,
-                    feed_table.c.action,
-                    feed_table.c.updated,
-                    user_table.c.username,
-                    user_table.c.id,
-                    user_table.c.image,
-                ]
-            )
-            .where(
-                (feed_table.c.post_id == post_table.c.id)
-                & (feed_table.c.to_user_id == user_id)
-                & (feed_table.c.fm_user_id == user_table.c.id)
-                & (feed_table.c.action == ActionType.new_post)
-            )
+            select(field_list)
+            .where((where_list) & (feed_table.c.action == ActionType.new_post))
             .order_by(desc(feed_table.c.updated))
             .limit(num_posts)
             .offset(0)
